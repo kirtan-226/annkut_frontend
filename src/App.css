@@ -1,0 +1,271 @@
+.App {
+  text-align: center;
+  font-size: smaller;
+}
+.custom-progress-bar {
+  --bs-progress-bar-bg: #bc00af !important;
+}
+.scrollable-container {
+  max-height: 400px; /* Adjust as needed */
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.chart-scroll {
+  overflow-x: auto; /* Enable horizontal scrolling */
+}
+
+.table-scroll {
+  max-height: 400px;
+  overflow-y: scroll;
+}
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Toast notification */
+
+/* Toast notification styling */
+.Toastify__toast-container {
+  width: auto;
+}
+
+.Toastify__toast--success {
+  background-color: #28a745;
+}
+
+.Toastify__toast--error {
+  background-color: #dc3545;
+}
+
+.Toastify__toast--warning {
+  background-color: #ffc107;
+}
+
+.Toastify__toast--info {
+  background-color: #17a2b8;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+.login-card {
+  background-color: #ffffff;
+  padding: 2rem;
+  width: 100%;
+  color: cornsilk;
+  max-width: 400px;
+}
+
+.mandir-image {
+  width: 100vw;
+  height: 100%;
+  object-fit: cover;
+  position: relative;
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1),
+    rgba(0, 0, 0, 0.5),
+    rgba(0, 0, 0, 0)
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1),
+    rgba(0, 0, 0, 0.5),
+    rgba(0, 0, 0, 0)
+  );
+}
+
+.login-container h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.login-container label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #666;
+}
+
+.login-container input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 2px solid #ddd;
+  border-radius: 15px;
+  font-size: 1rem;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #ed3237;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-btn:hover {
+  background-color: #0056b3;
+}
+
+.login-btn:disabled {
+  background-color: #a5a5a5;
+}
+
+.change-password-link {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.link {
+  color: #000000;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.password-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #ffffff;
+  /* A soft, light background color */
+}
+
+/* Styling for the password change card */
+.password-card {
+  width: 80vw;
+  max-width: 400px;
+  padding: 20px;
+  background-color: #ffffff;
+  /* White background for the card */
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+
+/* Headline for the form */
+.password-card h1 {
+  font-size: 24px;
+  color: #333333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Label styling for form inputs */
+.password-card label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #555555;
+}
+
+/* Input fields styling */
+.password-card input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #cccccc;
+  background-color: rgba(237, 50, 55, 0.2);
+  border-radius: 10px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.password-card input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Button styling */
+.password-card button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background-color: #ed3237;
+  color: #ffffff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.password-card button:hover {
+  background-color: #c04eda;
+}
+
+.password-card button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Link back to login */
+.back-to-login-link {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+/* Styling for the link */
+.link {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.seva-boxes {
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+}
