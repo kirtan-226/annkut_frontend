@@ -14,6 +14,7 @@ const EditSevakModal = ({ modal, setModal, sevakData, refreshData }) => {
   const [formData, setFormData] = useState({
     name: sevakData.name || "",
     mandal: sevakData.mandal || "",
+    previous_target: sevakData.previous_target || "",
     sevak_target: sevakData.sevak_target || "",
     phone_number: sevakData.phone_number || "",
   });
@@ -21,6 +22,7 @@ const EditSevakModal = ({ modal, setModal, sevakData, refreshData }) => {
   const [errors, setErrors] = useState({
     name: false,
     mandal: false,
+    previous_target: false,
     sevak_target: false,
     phone_number: false,
   });
@@ -29,6 +31,7 @@ const EditSevakModal = ({ modal, setModal, sevakData, refreshData }) => {
     setFormData({
       name: sevakData.name || "",
       mandal: sevakData.mandal || "",
+      previous_target: sevakData.previous_target || "",
       sevak_target: sevakData.sevak_target || "",
       phone_number: sevakData.phone_number || "",
     });
@@ -110,6 +113,14 @@ const EditSevakModal = ({ modal, setModal, sevakData, refreshData }) => {
           onChange={handleChange}
           error={errors.mandal}
           helperText={errors.mandal ? "Mandal is required." : ""}
+        />
+        <TextField
+          fullWidth
+          margin="normal"
+          label="Target in 2024"
+          name="previous_target"
+          value={formData.previous_target}
+          disabled
         />
         <TextField
           fullWidth
