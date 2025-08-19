@@ -41,7 +41,7 @@ function Header(props) {
         style={{ background: "#ED3237", marginBottom: "7px", zIndex: 1000 }}
       >
         <NavbarBrand style={{ color: "#ffffff" }} href="/">
-          Annkut 2024
+          Annkut 2025
         </NavbarBrand>
         <NavbarToggler style={{ background: "#ffffff" }} onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>

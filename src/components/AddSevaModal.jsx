@@ -20,7 +20,8 @@ function AddSevaModal({ modal, setModal }) {
     reciept_no: "",
     seva_amount: "500",
     sahyogi_name: "",
-    prasad_detail: "annkut_sevak",
+    sahyogi_number: "",
+    // prasad_detail: "annkut_sevak",
   });
   const [customAmount, setCustomAmount] = useState("");
   const [errors, setErrors] = useState({});
@@ -57,10 +58,12 @@ function AddSevaModal({ modal, setModal }) {
     if (!formData.book_no) formErrors.book_no = "Book number is required";
     if (!formData.reciept_no)
       formErrors.reciept_no = "Receipt number is required";
+    if (!formData.sahyogi_name)
+        formErrors.sahyogi_name = "Sahyogi name is required";
+    if (!formData.sahyogi_number)
+        formErrors.sahyogi_number = "Sahyogi number is required";
     if (formData.seva_amount === "other") {
       if (!customAmount) formErrors.customAmount = "Custom amount is required";
-      if (!formData.sahyogi_name)
-        formErrors.sahyogi_name = "Sahyogi name is required";
     }
     return formErrors;
   };
@@ -96,7 +99,7 @@ function AddSevaModal({ modal, setModal }) {
           reciept_no: "",
           seva_amount: "500",
           sahyogi_name: "",
-          prasad_detail: "annkut_sevak",
+          // prasad_detail: "annkut_sevak",
         });
         setCustomAmount("");
         toggle();
@@ -145,7 +148,36 @@ function AddSevaModal({ modal, setModal }) {
               fullWidth
             />
           </FormControl>
-          <FormControl component="fieldset" margin="normal">
+          <FormControl fullWidth variant="outlined" margin="normal">
+            <TextField
+              label="Annkut Sahyogi"
+              name="sahyogi_name"
+              type="text"
+              value={formData.sahyogi_name}
+              onChange={handleChange}
+              variant="outlined"
+              color="secondary"
+              error={!!errors.sahyogi_name}
+              helperText={errors.sahyogi_name}
+              fullWidth
+            />
+          </FormControl>
+          <FormControl fullWidth variant="outlined" margin="normal">
+            <TextField
+              label="Annkut Sahyogi Phone Number"
+              name="sahyogi_number"
+              type="tel"
+              value={formData.sahyogi_number || ""}
+              onChange={handleChange}
+              variant="outlined"
+              color="secondary"
+              error={Boolean(errors.sahyogi_number)}
+              helperText={errors.sahyogi_number}
+              fullWidth
+              inputProps={{ inputMode: "numeric", pattern: "[0-9]{10}", maxLength: 10 }}
+            />
+          </FormControl>
+          {/*<FormControl component="fieldset" margin="normal">
             <FormLabel component="legend">Prashad Vitran</FormLabel>
             <RadioGroup
               name="prasad_detail"
@@ -163,7 +195,7 @@ function AddSevaModal({ modal, setModal }) {
                 label="Sahyogi Pote"
               />
             </RadioGroup>
-          </FormControl>
+          </FormControl>*/}
           <FormControl component="fieldset" margin="normal">
             <FormLabel component="legend">Amount</FormLabel>
             <RadioGroup
@@ -201,20 +233,6 @@ function AddSevaModal({ modal, setModal }) {
                   color="secondary"
                   error={!!errors.customAmount}
                   helperText={errors.customAmount}
-                  fullWidth
-                />
-              </FormControl>
-              <FormControl fullWidth variant="outlined" margin="normal">
-                <TextField
-                  label="Annkut Sahyogi"
-                  name="sahyogi_name"
-                  type="text"
-                  value={formData.sahyogi_name}
-                  onChange={handleChange}
-                  variant="outlined"
-                  color="secondary"
-                  error={!!errors.sahyogi_name}
-                  helperText={errors.sahyogi_name}
                   fullWidth
                 />
               </FormControl>

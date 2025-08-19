@@ -90,7 +90,11 @@ const Home = () => {
         <Button color="primary" outline onClick={handleAddSeva}>
           Add Seva
         </Button>
-        <ListingTable data={filledForms} handleDelete={handleDelete} />
+        <ListingTable
+          data={filledForms}
+          handleDelete={handleDelete}
+          refreshData={fetchFilledForms}
+        />
       </div>
 
       {showAddSeva && (

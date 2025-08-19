@@ -125,7 +125,7 @@ const EditSevakModal = ({ modal, setModal, sevakData, refreshData }) => {
         <TextField
           fullWidth
           margin="normal"
-          label="Target"
+          label="Target for 2025"
           name="sevak_target"
           type="number"
           value={formData.sevak_target}
