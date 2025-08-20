@@ -124,10 +124,10 @@ const MandalSevakList = () => {
             <h6>Target : {mandalDetails?.mandal_target}</h6>
             <h6>Filled : {mandalDetails?.mandal_filled_form}</h6>
           </div>
-          <div>
+          {/* <div>
             <h6>Sahyogi : {sahyogiPrasad}</h6>
             <h6>Sevak : {sevakPrasad}</h6>
-          </div>
+          </div> */}
           <div
             style={{
               textAlign: "end",

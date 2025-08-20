@@ -251,13 +251,13 @@ const sum = (rows, field) =>
         <h5>1000/- : {formTarget?.seva_thousand}</h5>
         <h5>Above 1000/- : {formTarget?.seva_other}</h5>
       </div>
-      <div className="border m-4">
+      {/* <div className="border m-4">
         <h2>
           <u>Prasad</u>
         </h2>
         <h5>Annkut Sevak : {formTarget?.sevak_prasad}</h5>
         <h5>Sahyogi : {formTarget?.sahyogi_prasad}</h5>
-      </div>
+      </div> */}
       {hasRole ? (
         <TableContainer
           component={Paper}
