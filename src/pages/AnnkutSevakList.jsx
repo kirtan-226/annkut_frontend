@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { Table } from "reactstrap";
 import { BACKEND_ENDPOINT } from "../api/api";
 import Header from "../components/Header";
@@ -146,6 +146,32 @@ const AnnkutSevakList = () => {
     // Example: Return first 3 characters for abbreviation
     return label.length > 3 ? label.substring(0, 3) : label;
   };
+
+const groupedByXetra = useMemo(() => {
+  const arr = Array.isArray(mandalList) ? mandalList : [];
+  const map = new Map();
+
+  for (const item of arr) {
+    const key = (item.mandal_xetra || "Unknown").toString().trim();
+    if (!map.has(key)) map.set(key, []);
+    map.get(key).push(item);
+  }
+
+  // sort each group by mandal name (optional)
+  for (const [k, rows] of map) {
+    rows.sort((a, b) => a.mandal_name.localeCompare(b.mandal_name));
+  }
+
+  // sort groups naturally (so "Bharuch -1" < "Bharuch -2")
+  return Array.from(map.entries()).sort((a, b) =>
+    a[0].localeCompare(b[0], undefined, { numeric: true, sensitivity: "base" })
+  );
+}, [mandalList]);
+
+// helper for totals (optional)
+const sum = (rows, field) =>
+  rows.reduce((acc, r) => acc + (parseInt(r[field] ?? 0, 10) || 0), 0);
+
   const mandalData = mandalList.map((item) => ({
     name: abbreviateLabel(item.mandal_name),
     filledForms: item.mandal_filled_form,
@@ -246,16 +272,37 @@ const AnnkutSevakList = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {mandalList?.map((item, idx) => (
-                <TableRow
-                  key={idx}
-                  className="mandal-name"
-                  onClick={() => handleMandalClick(item)}
-                >
-                  <TableCell>{item.mandal_name}</TableCell>
-                  <TableCell>{item.mandal_filled_form}</TableCell>
-                  <TableCell>{item.mandal_target}</TableCell>
-                </TableRow>
+              {groupedByXetra.map(([xetra, rows]) => (
+                <React.Fragment key={xetra}>
+                  {/* group header row */}
+                  <TableRow>
+                    <TableCell colSpan={3} style={{ fontWeight: 700, textAlign:"center", background: "#f7f7f7" }}>
+                      {xetra}
+                    </TableCell>
+                  </TableRow>
+
+                  {/* actual mandals under this xetra */}
+                  {rows.map((item, idx) => (
+                    <TableRow
+                      key={`${xetra}-${item.mandal_name}-${idx}`}
+                      className="mandal-name"
+                      onClick={() => handleMandalClick(item)}
+                      hover
+                    >
+                      <TableCell>{item.mandal_name}</TableCell>
+                      <TableCell>{item.mandal_filled_form}</TableCell>
+                      <TableCell>{item.mandal_target}</TableCell>
+                    </TableRow>
+                  ))}
+
+                  {/* optional summary row per xetra */}
+                  <TableRow>
+                    <TableCell style={{ fontStyle: "italic" }}>Subtotal</TableCell>
+                    <TableCell style={{ fontStyle: "italic" }}>{sum(rows, "mandal_filled_form")}</TableCell>
+                    <TableCell style={{ fontStyle: "italic" }}>{sum(rows, "mandal_target")}</TableCell>
+                  </TableRow>
+
+                </React.Fragment>
               ))}
             </TableBody>
           </Table>
