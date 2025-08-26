@@ -114,26 +114,21 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
   };
 
   const validateForm = () => {
-    const formErrors = {};
-    if (!formData.book_no) formErrors.book_no = "Book number is required";
-    if (!formData.reciept_no) formErrors.reciept_no = "Receipt number is required";
-    if (!formData.sahyogi_name) formErrors.sahyogi_name = "Sahyogi name is required";
+    let formErrors = {};
 
-    // phone optional? If you want required, keep this; else remove.
-    if (!formData.sahyogi_number) {
-      formErrors.sahyogi_number = "Sahyogi number is required";
-    } else if (!/^\d{10}$/.test(formData.sahyogi_number)) {
-      formErrors.sahyogi_number = "Phone number must be 10 digits";
-    }
+    if (!formData.book_no) formErrors.book_no = "બુક નંબર લાખો";
+    if (!formData.reciept_no) formErrors.reciept_no = "રસીદ નંબર લાખો";
+    if (!formData.sahyogi_first_name) formErrors.sahyogi_first_name = "સહયોગી નું નામ લાખો";
+    if (!formData.sahyogi_last_name) formErrors.sahyogi_last_name = "સહયોગી ની અટક લાખો";
+    if (!formData.sahyogi_middle_name) formErrors.sahyogi_middle_name = "સહયોગી ના પિતા નું નામ લાખો";
+    if (!formData.sahyogi_number) formErrors.sahyogi_number = "સહયોગી નો નંબર લાખો";
 
     if (formData.seva_amount === "other") {
       if (!customAmount) {
         formErrors.customAmount = "Custom amount is required";
-      } else if (!/^[1-9]\d*$/.test(customAmount)) {
-        formErrors.customAmount = "Enter a positive number";
+      } else if (parseInt(customAmount, 10) <= 1000) {
+        formErrors.customAmount = "Amount must be greater than 1000";
       }
-    } else if (!/^(500|1000)$/.test(formData.seva_amount)) {
-      formErrors.seva_amount = "Invalid amount";
     }
 
     return formErrors;
@@ -178,57 +173,49 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
         <ModalBody>
           <FormControl fullWidth variant="outlined" margin="normal">
             <TextField
-              label="Book Number"
-              name="book_no"
+              label="સહયોગી ની અટક"
+              name="sahyogi_last_name"
               type="text"
-              value={formData.book_no}
+              value={formData.sahyogi_last_name}
               onChange={handleChange}
               variant="outlined"
               color="secondary"
-              error={!!errors.book_no}
-              helperText={errors.book_no}
+              error={!!errors.sahyogi_last_name}
+              helperText={errors.sahyogi_last_name}
               fullWidth
-              inputProps={{ inputMode: "numeric" }}
-              disabled={fetching || loader}
             />
           </FormControl>
-
           <FormControl fullWidth variant="outlined" margin="normal">
             <TextField
-              label="Receipt Number"
-              name="reciept_no"
+              label="સહયોગી ના પિતા/પતિ નું નામ"
+              name="sahyogi_middle_name"
               type="text"
-              value={formData.reciept_no}
+              value={formData.sahyogi_middle_name}
               onChange={handleChange}
               variant="outlined"
               color="secondary"
-              error={!!errors.reciept_no}
-              helperText={errors.reciept_no}
+              error={!!errors.sahyogi_middle_name}
+              helperText={errors.sahyogi_middle_name}
               fullWidth
-              inputProps={{ inputMode: "numeric" }}
-              disabled={fetching || loader}
             />
           </FormControl>
-
           <FormControl fullWidth variant="outlined" margin="normal">
             <TextField
-              label="Annkut Sahyogi"
-              name="sahyogi_name"
+              label="સહયોગી નુ નામ"
+              name="sahyogi_first_name"
               type="text"
-              value={formData.sahyogi_name}
+              value={formData.sahyogi_first_name}
               onChange={handleChange}
               variant="outlined"
               color="secondary"
-              error={!!errors.sahyogi_name}
-              helperText={errors.sahyogi_name}
+              error={!!errors.sahyogi_first_name}
+              helperText={errors.sahyogi_first_name}
               fullWidth
-              disabled={fetching || loader}
             />
           </FormControl>
-
           <FormControl fullWidth variant="outlined" margin="normal">
             <TextField
-              label="Annkut Sahyogi Phone Number"
+              label="સહયોગી નો ફોન નંબર"
               name="sahyogi_number"
               type="tel"
               value={formData.sahyogi_number || ""}
@@ -239,11 +226,58 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
               helperText={errors.sahyogi_number}
               fullWidth
               inputProps={{ inputMode: "numeric", pattern: "[0-9]{10}", maxLength: 10 }}
-              disabled={fetching || loader}
             />
           </FormControl>
-
-          <FormControl component="fieldset" margin="normal" disabled={fetching || loader}>
+          {/*<FormControl component="fieldset" margin="normal">
+            <FormLabel component="legend">Prashad Vitran</FormLabel>
+            <RadioGroup
+              name="prasad_detail"
+              value={formData.prasad_detail}
+              onChange={handleChange}
+            >
+              <FormControlLabel
+                value="annkut_sevak"
+                control={<Radio color="secondary" />}
+                label="Annkut Sevak"
+              />
+              <FormControlLabel
+                value="sahyogi_pote"
+                control={<Radio color="secondary" />}
+                label="Sahyogi Pote"
+              />
+            </RadioGroup>
+          </FormControl>*/}
+          <FormControl fullWidth variant="outlined" margin="normal">
+            <TextField
+              label="બુક નંબર"
+              name="book_no"
+              type="number"
+              value={formData.book_no}
+              onChange={handleChange}
+              variant="outlined"
+              color="secondary"
+              error={!!errors.book_no}
+              helperText={errors.book_no}
+              required
+              fullWidth
+            />
+          </FormControl>
+          <FormControl fullWidth variant="outlined" margin="normal">
+            <TextField
+              label="રસીદ નંબર"
+              name="reciept_no"
+              type="number"
+              value={formData.reciept_no}
+              onChange={handleChange}
+              variant="outlined"
+              color="secondary"
+              error={!!errors.reciept_no}
+              helperText={errors.reciept_no}
+              required
+              fullWidth
+            />
+          </FormControl>
+          <FormControl component="fieldset" margin="normal">
             <FormLabel component="legend">Amount</FormLabel>
             <RadioGroup
               name="seva_amount"
@@ -267,24 +301,24 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
               />
             </RadioGroup>
           </FormControl>
-
           {formData.seva_amount === "other" && (
-            <FormControl fullWidth variant="outlined" margin="normal">
-              <TextField
-                label="Enter Custom Amount"
-                name="customAmount"
-                type="text"
-                value={customAmount}
-                onChange={handleCustomAmountChange}
-                variant="outlined"
-                color="secondary"
-                error={!!errors.customAmount}
-                helperText={errors.customAmount}
-                fullWidth
-                inputProps={{ inputMode: "numeric" }}
-                disabled={fetching || loader}
-              />
-            </FormControl>
+            <>
+              <FormControl fullWidth variant="outlined" margin="normal">
+                <TextField
+                  label="Enter Custom Amount"
+                  name="customAmount"
+                  type="number"
+                  value={customAmount}
+                  onChange={handleCustomAmountChange}
+                  variant="outlined"
+                  color="secondary"
+                  error={!!errors.customAmount}
+                  helperText={errors.customAmount}
+                  fullWidth
+                  inputProps={{ min: 1001 }} // extra safeguard on UI
+                />
+              </FormControl>
+            </>
           )}
         </ModalBody>
 

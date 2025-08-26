@@ -85,7 +85,7 @@ const AnnkutSevakList = () => {
       setMandalList(res.data.mandal_array);
       setDataLoaded(true); // Set dataLoaded to true after fetching
 
-      setFormTarget(res.data.target);
+      // setFormTarget(res.data.target);
     } catch (error) {
       console.error("Failed to fetch mandal list:", error);
     }
@@ -152,7 +152,7 @@ const groupedByXetra = useMemo(() => {
   const map = new Map();
 
   for (const item of arr) {
-    const key = (item.mandal_xetra || "Unknown").toString().trim();
+    const key = (item.mandal_xetra || " ").toString().trim();
     if (!map.has(key)) map.set(key, []);
     map.get(key).push(item);
   }

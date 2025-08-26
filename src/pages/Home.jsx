@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef , useState } from "react";
 import Header from "../components/Header";
 import ListingTable from "../components/ListingTable";
 import AddSevaModal from "../components/AddSevaModal";
@@ -11,10 +11,11 @@ import { ProgressBar } from "react-bootstrap";
 const Home = () => {
   const [showAddSeva, setShowAddSeva] = useState(false);
   const [filledForms, setFilledForms] = useState([]);
-  const { sevak_target, filled_form } = JSON.parse(
+  const { sevak_target, filled_form, achieved_target } = JSON.parse(
     localStorage.getItem("sevakDetails")
   );
   const [formTarget, setFormTarget] = useState(filled_form);
+  const [achievedTarget, setAchievedTarget] = useState(achieved_target);
 
   const handleAddSeva = () => {
     setShowAddSeva(true);
@@ -22,18 +23,32 @@ const Home = () => {
 
   const sevak = JSON.parse(localStorage.getItem("sevakDetails"));
   const sevak_id = sevak?.sevak_id; // Ensure this matches with the server response
+  const didInitRef = useRef(false);
+  useEffect(() => {
+    if (didInitRef.current) return;
+    didInitRef.current = true;
+
+    if (!sevak_target || sevak_target <= 0) {
+      alert("કૃપા કરીને તમારા અન્નકુટ ફોર્મ લક્ષ્યને અપડેટ કરો.");
+    }
+    fetchFilledForms();
+  }, []);
   const fetchFilledForms = async () => {
     try {
       const res = await axios.post(`${BACKEND_ENDPOINT}seva/get_seva`, {
         sevak_id: sevak_id,
       });
       setFilledForms(res.data.seva || []); // Ensure `seva` is in the response
+      console.log('response',res.data);
       setFormTarget(res.data.seva.length);
+      setAchievedTarget(res.data.achieved_target);
     } catch (error) {
       console.error("Error fetching filled forms:", error);
     }
   };
-  const progress = formTarget ? (formTarget / sevak_target) * 100 : 0;
+  const progress = sevak_target > 0 ? (achievedTarget / sevak_target) * 100 : 0;
+  console.log('sevak_target',sevak_target);
+  console.log('achievedTarget',achievedTarget);
   const handleDelete = async (id) => {
     try {
       const res = await axios.put(`${BACKEND_ENDPOINT}seva/delete_seva`, {
@@ -87,15 +102,19 @@ const Home = () => {
         </div>
       </div>
       <div>
-        <Button color="primary" outline onClick={handleAddSeva}>
-          Add Seva
-        </Button>
-        <ListingTable
-          data={filledForms}
-          handleDelete={handleDelete}
-          refreshData={fetchFilledForms}
-        />
-      </div>
+      {sevak_target > 0 && (
+        <div>
+          <Button color="primary" outline onClick={handleAddSeva}>
+            Add Seva
+          </Button>
+          <ListingTable
+            data={filledForms}
+            handleDelete={handleDelete}
+            refreshData={fetchFilledForms}
+          />
+        </div>
+      )}
+    </div>
 
       {showAddSeva && (
         <AddSevaModal modal={showAddSeva} setModal={setShowAddSeva} />

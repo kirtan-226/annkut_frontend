@@ -55,16 +55,22 @@ function AddSevaModal({ modal, setModal }) {
 
   const validateForm = () => {
     let formErrors = {};
-    if (!formData.book_no) formErrors.book_no = "Book number is required";
-    if (!formData.reciept_no)
-      formErrors.reciept_no = "Receipt number is required";
-    if (!formData.sahyogi_name)
-        formErrors.sahyogi_name = "Sahyogi name is required";
-    if (!formData.sahyogi_number)
-        formErrors.sahyogi_number = "Sahyogi number is required";
+
+    if (!formData.book_no) formErrors.book_no = "બુક નંબર લાખો";
+    if (!formData.reciept_no) formErrors.reciept_no = "રસીદ નંબર લાખો";
+    if (!formData.sahyogi_first_name) formErrors.sahyogi_first_name = "સહયોગી નું નામ લાખો";
+    if (!formData.sahyogi_last_name) formErrors.sahyogi_last_name = "સહયોગી ની અટક લાખો";
+    if (!formData.sahyogi_middle_name) formErrors.sahyogi_middle_name = "સહયોગી ના પિતા નું નામ લાખો";
+    if (!formData.sahyogi_number) formErrors.sahyogi_number = "સહયોગી નો નંબર લાખો";
+
     if (formData.seva_amount === "other") {
-      if (!customAmount) formErrors.customAmount = "Custom amount is required";
+      if (!customAmount) {
+        formErrors.customAmount = "Custom amount is required";
+      } else if (parseInt(customAmount, 10) <= 1000) {
+        formErrors.customAmount = "Amount must be greater than 1000";
+      }
     }
+
     return formErrors;
   };
 
@@ -120,51 +126,49 @@ function AddSevaModal({ modal, setModal }) {
         <ModalBody>
           <FormControl fullWidth variant="outlined" margin="normal">
             <TextField
-              label="Book Number"
-              name="book_no"
-              type="number"
-              value={formData.book_no}
-              onChange={handleChange}
-              variant="outlined"
-              color="secondary"
-              error={!!errors.book_no}
-              helperText={errors.book_no}
-              required
-              fullWidth
-            />
-          </FormControl>
-          <FormControl fullWidth variant="outlined" margin="normal">
-            <TextField
-              label="Receipt Number"
-              name="reciept_no"
-              type="number"
-              value={formData.reciept_no}
-              onChange={handleChange}
-              variant="outlined"
-              color="secondary"
-              error={!!errors.reciept_no}
-              helperText={errors.reciept_no}
-              required
-              fullWidth
-            />
-          </FormControl>
-          <FormControl fullWidth variant="outlined" margin="normal">
-            <TextField
-              label="Annkut Sahyogi"
-              name="sahyogi_name"
+              label="સહયોગી ની અટક"
+              name="sahyogi_last_name"
               type="text"
-              value={formData.sahyogi_name}
+              value={formData.sahyogi_last_name}
               onChange={handleChange}
               variant="outlined"
               color="secondary"
-              error={!!errors.sahyogi_name}
-              helperText={errors.sahyogi_name}
+              error={!!errors.sahyogi_last_name}
+              helperText={errors.sahyogi_last_name}
               fullWidth
             />
           </FormControl>
           <FormControl fullWidth variant="outlined" margin="normal">
             <TextField
-              label="Annkut Sahyogi Phone Number"
+              label="સહયોગી ના પિતા/પતિ નું નામ"
+              name="sahyogi_middle_name"
+              type="text"
+              value={formData.sahyogi_middle_name}
+              onChange={handleChange}
+              variant="outlined"
+              color="secondary"
+              error={!!errors.sahyogi_middle_name}
+              helperText={errors.sahyogi_middle_name}
+              fullWidth
+            />
+          </FormControl>
+          <FormControl fullWidth variant="outlined" margin="normal">
+            <TextField
+              label="સહયોગી નુ નામ"
+              name="sahyogi_first_name"
+              type="text"
+              value={formData.sahyogi_first_name}
+              onChange={handleChange}
+              variant="outlined"
+              color="secondary"
+              error={!!errors.sahyogi_first_name}
+              helperText={errors.sahyogi_first_name}
+              fullWidth
+            />
+          </FormControl>
+          <FormControl fullWidth variant="outlined" margin="normal">
+            <TextField
+              label="સહયોગી નો ફોન નંબર"
               name="sahyogi_number"
               type="tel"
               value={formData.sahyogi_number || ""}
@@ -196,6 +200,36 @@ function AddSevaModal({ modal, setModal }) {
               />
             </RadioGroup>
           </FormControl>*/}
+          <FormControl fullWidth variant="outlined" margin="normal">
+            <TextField
+              label="બુક નંબર"
+              name="book_no"
+              type="number"
+              value={formData.book_no}
+              onChange={handleChange}
+              variant="outlined"
+              color="secondary"
+              error={!!errors.book_no}
+              helperText={errors.book_no}
+              required
+              fullWidth
+            />
+          </FormControl>
+          <FormControl fullWidth variant="outlined" margin="normal">
+            <TextField
+              label="રસીદ નંબર"
+              name="reciept_no"
+              type="number"
+              value={formData.reciept_no}
+              onChange={handleChange}
+              variant="outlined"
+              color="secondary"
+              error={!!errors.reciept_no}
+              helperText={errors.reciept_no}
+              required
+              fullWidth
+            />
+          </FormControl>
           <FormControl component="fieldset" margin="normal">
             <FormLabel component="legend">Amount</FormLabel>
             <RadioGroup
@@ -234,6 +268,7 @@ function AddSevaModal({ modal, setModal }) {
                   error={!!errors.customAmount}
                   helperText={errors.customAmount}
                   fullWidth
+                  inputProps={{ min: 1001 }} // extra safeguard on UI
                 />
               </FormControl>
             </>
