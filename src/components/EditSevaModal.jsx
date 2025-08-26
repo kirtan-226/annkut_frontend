@@ -127,7 +127,7 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
       if (!customAmount) {
         formErrors.customAmount = "Custom amount is required";
       } else if (parseInt(customAmount, 10) <= 1000) {
-        formErrors.customAmount = "Amount must be greater than 1000";
+        formErrors.customAmount = "રોકમ 1000 કરતા વધારે હોઈ તોજ લાખો";
       }
     }
 
