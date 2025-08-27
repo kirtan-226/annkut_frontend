@@ -176,12 +176,12 @@ const MandalSevakList = () => {
                         >
                           <i class="bi fs-6 bi-pencil"></i>
                         </IconButton>
-                        {/* <IconButton
-            color="error"
-            onClick={() => handleDelete(item)}
-          >
-            <i class="bi fs-6 bi-trash"></i>
-          </IconButton> */}
+                        <IconButton
+                            color="error"
+                            onClick={() => handleDelete(item)}
+                          >
+                            <i class="bi fs-6 bi-trash"></i>
+                        </IconButton>
                       </td>
                     )}
                   </tr>

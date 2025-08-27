@@ -27,8 +27,8 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await axios.post(`${BACKEND_ENDPOINT}login/login`, loginData);
-
-      if (res.data.status === "true") {
+      console.log(res);
+      if (res.data.status === true) {
         const { sevak } = res.data;
         localStorage.setItem("sevakDetails", JSON.stringify(sevak));
 

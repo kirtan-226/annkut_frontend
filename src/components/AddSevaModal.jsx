@@ -98,7 +98,7 @@ function AddSevaModal({ modal, setModal }) {
         sevak_id: sevak_id,
       });
 
-      if (res.data.status === "true") {
+      if (res.data.status === true) {
         toast.success(res.data.message);
         setFormData({
           book_no: "",

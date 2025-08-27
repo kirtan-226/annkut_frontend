@@ -60,7 +60,7 @@ function AddAnnkutSevakModal({ modal, setModal }) {
         id: sevak_id,
       });
 
-      if (res.data.status === "true") {
+      if (res.data.status === true) {
         toast.success(res.data.message);
         setFormData({
           name: "",
