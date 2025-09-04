@@ -13,7 +13,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { Button, FormControlLabel } from "@mui/material";
 
 function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
-  // sevakData is actually the selected SEVA row from ListingTable
+  // sevakData is the selected row from ListingTable
   const sevaId = useMemo(
     () => sevakData?.seva_id ?? sevakData?.id,
     [sevakData]
@@ -24,9 +24,11 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
 
   const [formData, setFormData] = useState({
     book_no: "",
-    reciept_no: "",
+    receipt_no: "",
     seva_amount: "500",
-    sahyogi_name: "",
+    sahyogi_first_name: "",
+    sahyogi_middle_name: "",
+    sahyogi_last_name: "",
     sahyogi_number: "",
   });
   const [customAmount, setCustomAmount] = useState("");
@@ -34,59 +36,78 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
 
   const toggle = () => setModal(!modal);
 
-  // Helper to normalize API fields
-  const pickReceipt = (obj) => obj?.reciept_no ?? obj?.reciept_no ?? "";
-
-  // Fetch latest seva by id when modal opens
+  // Fetch latest seva by id when modal opens and use API response to fill the form
   useEffect(() => {
-  if (!modal || !sevaId) return;
+    if (!modal || !sevaId) return;
 
-  let ignore = false;
-  (async () => {
-    try {
-      setFetching(true);
-      const res = await axios.post(`${BACKEND_ENDPOINT}seva/get_seva_by_id`, {
-        seva_id: sevaId,
-      });
-
-      // handle object OR array payloads
-      const raw = res?.data?.seva;
-      const s = Array.isArray(raw) ? raw[0] : raw || {};
-
-      // fallback to values from the row we clicked if API misses something
-      const bookNo = s.book_no ?? sevakData?.book_no ?? "";
-      const receipt = s.reciept_no ?? s.reciept_no ?? sevakData?.reciept_no ?? sevakData?.reciept_no ?? "";
-      const name = s.sahyogi_name ?? sevakData?.sahyogi_name ?? "";
-      const phone = s.sahyogi_number ?? sevakData?.sahyogi_number ?? "";
-      const amtRaw = s.seva_amount ?? sevakData?.seva_amount ?? "";
-
-      // cast amount to string so radios match ("500"/"1000"/"other")
-      const amt = String(amtRaw).trim();
-      const isPreset = amt === "500" || amt === "1000";
-      const nextSevaAmount = isPreset ? amt : "other";
-      const nextCustom = isPreset ? "" : (amt || "");
-
-      if (!ignore) {
-        setFormData({
-          book_no: String(bookNo),
-          reciept_no: String(receipt),
-          sahyogi_name: String(name),
-          sahyogi_number: String(phone),
-          seva_amount: nextSevaAmount, // "500" | "1000" | "other"
+    let ignore = false;
+    (async () => {
+      try {
+        setFetching(true);
+        const res = await axios.post(`${BACKEND_ENDPOINT}seva/get_seva_by_id`, {
+          seva_id: sevaId,
         });
-        setCustomAmount(nextCustom);   // only filled when "other"
-        setErrors({});
-      }
-    } catch (e) {
-      console.error("Error fetching seva by id:", e);
-      toast.error("Unable to fetch seva details.");
-    } finally {
-      if (!ignore) setFetching(false);
-    }
-  })();
 
-  return () => { ignore = true; };
-}, [modal, sevaId, BACKEND_ENDPOINT]);
+        // Support object or array payloads
+        const raw = res?.data;
+        const s = Array.isArray(raw) ? (raw[0] || {}) : (raw || {});
+        console.log(s);
+        // Pick fields from API first, then fall back to the row we clicked
+        const bookNo =
+          s.book_no ??
+          s.book_number ??
+          sevakData?.book_no ??
+          sevakData?.book_number ??
+          "";
+
+        const receipt =
+          s.receipt_no ??
+          s.reciept_no ??
+          sevakData?.receipt_no ??
+          sevakData?.reciept_no ??
+          "";
+
+        const first =
+          s.sahyogi_first_name ?? sevakData?.sahyogi_first_name ?? "";
+        const middle =
+          s.sahyogi_middle_name ?? sevakData?.sahyogi_middle_name ?? "";
+        const last =
+          s.sahyogi_last_name ?? sevakData?.sahyogi_last_name ?? "";
+
+        const phone = s.sahyogi_number ?? sevakData?.sahyogi_number ?? "";
+
+        const amtRaw = String(
+          s.seva_amount ?? sevakData?.seva_amount ?? ""
+        ).trim();
+        const isPreset = amtRaw === "500" || amtRaw === "1000";
+        const nextSevaAmount = isPreset ? amtRaw : "other";
+        const nextCustom = isPreset ? "" : (amtRaw || "");
+
+        if (!ignore) {
+          setFormData({
+            book_no: String(bookNo),
+            receipt_no: String(receipt),
+            sahyogi_first_name: String(first),
+            sahyogi_middle_name: String(middle),
+            sahyogi_last_name: String(last),
+            sahyogi_number: String(phone),
+            seva_amount: nextSevaAmount, // "500" | "1000" | "other"
+          });
+          setCustomAmount(nextCustom);
+          setErrors({});
+        }
+      } catch (e) {
+        console.error("Error fetching seva by id:", e);
+        toast.error("Unable to fetch seva details.");
+      } finally {
+        if (!ignore) setFetching(false);
+      }
+    })();
+
+    return () => {
+      ignore = true;
+    };
+  }, [modal, sevaId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -98,7 +119,7 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
 
     // Basic digit-only enforcement for number-ish fields
     let nextValue = value;
-    if (["book_no", "reciept_no", "sahyogi_number"].includes(name)) {
+    if (["book_no", "receipt_no", "sahyogi_number"].includes(name)) {
       nextValue = value.replace(/[^\d]/g, "");
     }
 
@@ -108,7 +129,6 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
   const handleCustomAmountChange = (e) => {
     const v = e.target.value.replace(/[^\d]/g, "");
     setCustomAmount(v);
-
     // Keep "other" selected
     setFormData((prev) => ({ ...prev, seva_amount: "other" }));
   };
@@ -117,11 +137,15 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
     let formErrors = {};
 
     if (!formData.book_no) formErrors.book_no = "બુક નંબર લાખો";
-    if (!formData.reciept_no) formErrors.reciept_no = "રસીદ નંબર લાખો";
-    if (!formData.sahyogi_first_name) formErrors.sahyogi_first_name = "સહયોગી નું નામ લાખો";
-    if (!formData.sahyogi_last_name) formErrors.sahyogi_last_name = "સહયોગી ની અટક લાખો";
-    if (!formData.sahyogi_middle_name) formErrors.sahyogi_middle_name = "સહયોગી ના પિતા નું નામ લાખો";
-    if (!formData.sahyogi_number) formErrors.sahyogi_number = "સહયોગી નો નંબર લાખો";
+    if (!formData.receipt_no) formErrors.receipt_no = "રસીદ નંબર લાખો";
+    if (!formData.sahyogi_first_name)
+      formErrors.sahyogi_first_name = "સહયોગી નું નામ લાખો";
+    if (!formData.sahyogi_last_name)
+      formErrors.sahyogi_last_name = "સહયોગી ની અટક લાખો";
+    if (!formData.sahyogi_middle_name)
+      formErrors.sahyogi_middle_name = "સહયોગી ના પિતા નું નામ લાખો";
+    if (!formData.sahyogi_number)
+      formErrors.sahyogi_number = "સહયોગી નો નંબર લાખો";
 
     if (formData.seva_amount === "other") {
       if (!customAmount) {
@@ -149,11 +173,16 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
       await axios.put(`${BACKEND_ENDPOINT}seva/edit_seva`, {
         id: sevaId,
         book_no: formData.book_no,
-        reciept_no: formData.reciept_no, // correct spelling
-        sahyogi_name: formData.sahyogi_name,
+        // send both spellings to be compatible with backend/DB
+        receipt_no: formData.receipt_no,
+        reciept_no: formData.receipt_no,
+        sahyogi_first_name: formData.sahyogi_first_name,
+        sahyogi_middle_name: formData.sahyogi_middle_name,
+        sahyogi_last_name: formData.sahyogi_last_name,
         sahyogi_number: formData.sahyogi_number || null,
-        seva_amount: formData.seva_amount === "other" ? customAmount : formData.seva_amount,
-    });
+        seva_amount:
+          formData.seva_amount === "other" ? customAmount : formData.seva_amount,
+      });
 
       toast.success("Seva updated successfully");
       toggle();
@@ -185,6 +214,7 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
               fullWidth
             />
           </FormControl>
+
           <FormControl fullWidth variant="outlined" margin="normal">
             <TextField
               label="સહયોગી ના પિતા/પતિ નું નામ"
@@ -199,6 +229,7 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
               fullWidth
             />
           </FormControl>
+
           <FormControl fullWidth variant="outlined" margin="normal">
             <TextField
               label="સહયોગી નુ નામ"
@@ -213,6 +244,7 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
               fullWidth
             />
           </FormControl>
+
           <FormControl fullWidth variant="outlined" margin="normal">
             <TextField
               label="સહયોગી નો ફોન નંબર"
@@ -228,30 +260,12 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
               inputProps={{ inputMode: "numeric", pattern: "[0-9]{10}", maxLength: 10 }}
             />
           </FormControl>
-          {/*<FormControl component="fieldset" margin="normal">
-            <FormLabel component="legend">Prashad Vitran</FormLabel>
-            <RadioGroup
-              name="prasad_detail"
-              value={formData.prasad_detail}
-              onChange={handleChange}
-            >
-              <FormControlLabel
-                value="annkut_sevak"
-                control={<Radio color="secondary" />}
-                label="Annkut Sevak"
-              />
-              <FormControlLabel
-                value="sahyogi_pote"
-                control={<Radio color="secondary" />}
-                label="Sahyogi Pote"
-              />
-            </RadioGroup>
-          </FormControl>*/}
+
           <FormControl fullWidth variant="outlined" margin="normal">
             <TextField
               label="બુક નંબર"
               name="book_no"
-              type="number"
+              type="text"
               value={formData.book_no}
               onChange={handleChange}
               variant="outlined"
@@ -262,21 +276,23 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
               fullWidth
             />
           </FormControl>
+
           <FormControl fullWidth variant="outlined" margin="normal">
             <TextField
               label="રસીદ નંબર"
-              name="reciept_no"
-              type="number"
-              value={formData.reciept_no}
+              name="receipt_no"
+              type="text"
+              value={formData.receipt_no}
               onChange={handleChange}
               variant="outlined"
               color="secondary"
-              error={!!errors.reciept_no}
-              helperText={errors.reciept_no}
+              error={!!errors.receipt_no}
+              helperText={errors.receipt_no}
               required
               fullWidth
             />
           </FormControl>
+
           <FormControl component="fieldset" margin="normal">
             <FormLabel component="legend">Amount</FormLabel>
             <RadioGroup
@@ -284,41 +300,28 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
               value={formData.seva_amount}
               onChange={handleChange}
             >
-              <FormControlLabel
-                value="500"
-                control={<Radio color="secondary" />}
-                label="500"
-              />
-              <FormControlLabel
-                value="1000"
-                control={<Radio color="secondary" />}
-                label="1000"
-              />
-              <FormControlLabel
-                value="other"
-                control={<Radio color="secondary" />}
-                label="Other"
-              />
+              <FormControlLabel value="500" control={<Radio color="secondary" />} label="500" />
+              <FormControlLabel value="1000" control={<Radio color="secondary" />} label="1000" />
+              <FormControlLabel value="other" control={<Radio color="secondary" />} label="Other" />
             </RadioGroup>
           </FormControl>
+
           {formData.seva_amount === "other" && (
-            <>
-              <FormControl fullWidth variant="outlined" margin="normal">
-                <TextField
-                  label="Enter Custom Amount"
-                  name="customAmount"
-                  type="number"
-                  value={customAmount}
-                  onChange={handleCustomAmountChange}
-                  variant="outlined"
-                  color="secondary"
-                  error={!!errors.customAmount}
-                  helperText={errors.customAmount}
-                  fullWidth
-                  inputProps={{ min: 1001 }} // extra safeguard on UI
-                />
-              </FormControl>
-            </>
+            <FormControl fullWidth variant="outlined" margin="normal">
+              <TextField
+                label="Enter Custom Amount"
+                name="customAmount"
+                type="text"
+                value={customAmount}
+                onChange={handleCustomAmountChange}
+                variant="outlined"
+                color="secondary"
+                error={!!errors.customAmount}
+                helperText={errors.customAmount}
+                fullWidth
+                inputProps={{ inputMode: "numeric" }}
+              />
+            </FormControl>
           )}
         </ModalBody>
 
@@ -343,7 +346,7 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
         </ModalFooter>
       </Modal>
 
-      {/* keep ToastContainer if you don't already have a global one */}
+      {/* Keep if you don’t have a global ToastContainer */}
       <ToastContainer position="top-center" autoClose={5000} pauseOnHover theme="colored" />
     </div>
   );

@@ -13,82 +13,87 @@ import {
   IconButton,
 } from "@mui/material";
 import ProgressBar from "react-bootstrap/ProgressBar";
-import AddAnnkutSevakModal from "../components/AddAnnkutSevakModal";
+// Removed unused AddAnnkutSevakModal import
 import EditSevakModal from "../components/EditSevakModal";
 
 const MandalSevakList = () => {
   const sevak = JSON.parse(localStorage.getItem("sevakDetails"));
   const sevak_id = sevak?.sevak_id;
+
   const [filledForms, setFilledForms] = useState([]);
   const [editModal, setEditModal] = useState(false);
   const [selectedSevak, setSelectedSevak] = useState(null);
+
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState(null);
+  const [itemToDelete, setItemToDelete] = useState(null); // will store sevak_id string
+
   const [sahyogiPrasad, setSahyogiPrasad] = useState(0);
   const [sevakPrasad, setSevakPrasad] = useState(0);
 
   const location = useLocation();
   const { mandalDetails } = location.state || {};
-  console.log(filledForms, "----filledForms");
-  const handleDelete = async (sevakId) => {
-    try {
-      setItemToDelete(sevakId);
-      setOpenConfirmDialog(true);
-      if (openConfirmDialog) {
-        await axios.post(`${BACKEND_ENDPOINT}sevak/delete_sevak`, {
-          sevak_id: sevakId,
-        });
-      }
-      fetchFilledForms(); // Refresh the list after deletion
-    } catch (error) {
-      console.error("Error deleting sevak:", error);
-    }
-  };
   const navigate = useNavigate();
-
-  const fetchFilledForms = async () => {
-    try {
-      fetchSevakList();
-    } catch (error) {
-      console.error("Error fetching filled forms:", error);
-    }
-  };
-  const handleDeleteConfirm = async (sevakId) => {
-    try {
-      await axios.post(`${BACKEND_ENDPOINT}sevak/delete_sevak`, {
-        sevak_id: sevakId,
-      });
-      fetchFilledForms(); // Refresh the list after deletion
-    } catch (error) {
-      console.error("Error deleting sevak:", error);
-    }
-  };
 
   const fetchSevakList = async () => {
     try {
+      if (!mandalDetails?.sanchalak) return;
       const res = await axios.post(`${BACKEND_ENDPOINT}sevak/get_sevak`, {
         sevak_id: mandalDetails.sanchalak,
       });
-      setFilledForms(res.data.sevak || []); // Ensure `seva` is in the response
+      setFilledForms(res.data.sevak || []);
       setSahyogiPrasad(res.data.sahyogi_prasad || 0);
       setSevakPrasad(res.data.sevak_prasad || 0);
+    } catch (error) {
+      console.error("Error fetching sevak list:", error);
+    }
+  };
+
+  const fetchFilledForms = async () => {
+    try {
+      await fetchSevakList();
     } catch (error) {
       console.error("Error fetching filled forms:", error);
     }
   };
+
+  const handleDelete = (item) => {
+    // store the sevak_id only; open dialog
+    setItemToDelete(item?.sevak_id || null);
+    setOpenConfirmDialog(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!itemToDelete) return;
+    try {
+      await axios.post(`${BACKEND_ENDPOINT}sevak/delete_sevak`, {
+        sevak_id: itemToDelete,
+      });
+      await fetchFilledForms(); // Refresh the list after deletion
+    } catch (error) {
+      console.error("Error deleting sevak:", error);
+    } finally {
+      setOpenConfirmDialog(false);
+      setItemToDelete(null);
+    }
+  };
+
   const handleEdit = (item) => {
     setSelectedSevak(item);
     setEditModal(true);
   };
-  const progress = mandalDetails?.mandal_filled_form
-    ? (mandalDetails.mandal_filled_form / mandalDetails.mandal_target) * 100
-    : 0;
+
+  const progress =
+    mandalDetails?.mandal_target > 0
+      ? ((Number(mandalDetails?.mandal_filled_form ?? 0) /
+          Number(mandalDetails?.mandal_target ?? 0)) *
+          100) || 0
+      : 0;
+
   useEffect(() => {
     fetchSevakList();
-  }, []);
-  useEffect(() => {
-    fetchSevakList();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mandalDetails?.sanchalak]);
+
   return (
     <>
       <div>
@@ -106,11 +111,12 @@ const MandalSevakList = () => {
             <h7 style={{ fontWeight: 600 }}>Archived Target</h7>
             <ProgressBar
               className="custom-progress-bar"
-              now={progress}
+              now={Math.max(0, Math.min(100, Math.round(progress)))}
               label={`${Math.round(progress)}%`}
             />
           </div>
         </div>
+
         <div
           style={{
             display: "flex",
@@ -121,28 +127,24 @@ const MandalSevakList = () => {
           }}
         >
           <div>
-            <h6>Target : {mandalDetails?.mandal_target}</h6>
-            <h6>Filled : {mandalDetails?.mandal_filled_form}</h6>
+            <h6>Target : {mandalDetails?.mandal_target ?? 0}</h6>
+            <h6>Filled : {mandalDetails?.mandal_filled_form ?? 0}</h6>
           </div>
-          {/* <div>
-            <h6>Sahyogi : {sahyogiPrasad}</h6>
-            <h6>Sevak : {sevakPrasad}</h6>
-          </div> */}
+
           <div
             style={{
               textAlign: "end",
               marginRight: "10px",
               marginLeft: "40px",
-
               fontSize: "xx-large",
+              cursor: "pointer",
             }}
             onClick={() => navigate(-1)}
+            title="Back"
           >
-            <i class="bi bi-arrow-left-square"></i>
+            <i className="bi bi-arrow-left-square"></i>
           </div>
         </div>
-
-        {/* Back Button */}
 
         <div>
           <Table striped bordered>
@@ -150,10 +152,10 @@ const MandalSevakList = () => {
               <tr>
                 <th>Sevak Id</th>
                 <th>Name</th>
-                <th>Mandal</th>
+                {/* <th>Mandal</th> */}
                 <th>Form Filled</th>
                 <th>Target</th>
-                {(sevak.role === "Sanchalak" || sevak.role === "Admin") && (
+                {(sevak?.role === "Sanchalak" || sevak?.role === "Admin") && (
                   <th>Actions</th>
                 )}
               </tr>
@@ -161,26 +163,28 @@ const MandalSevakList = () => {
             <tbody>
               {(Array.isArray(filledForms) ? filledForms : []).map(
                 (item, index) => (
-                  <tr key={item.id}>
-                    <th scope="row">{item.sevak_id}</th>
-                    <td>{item.name}</td>
-                    <td>{item.mandal}</td>
-                    <td>{item.filled_form}</td>
-                    <td>{item.sevak_target}</td>
-                    {(sevak.role === "Sanchalak" || sevak.role === "Admin") && (
+                  <tr key={`${item?.sevak_id || "row"}-${index}`}>
+                    <th scope="row">{item?.sevak_id}</th>
+                    <td>{item?.name}</td>
+                    {/* <td>{item?.mandal}</td> */}
+                    <td>{item?.filled_form ?? 0}</td>
+                    <td>{item?.sevak_target ?? 0}</td>
+                    {(sevak?.role === "Sanchalak" || sevak?.role === "Admin") && (
                       <td>
                         <IconButton
                           color="warning"
                           onClick={() => handleEdit(item)}
                           style={{ marginRight: "10px" }}
+                          size="small"
                         >
-                          <i class="bi fs-6 bi-pencil"></i>
+                          <i className="bi fs-6 bi-pencil"></i>
                         </IconButton>
                         <IconButton
-                            color="error"
-                            onClick={() => handleDelete(item)}
-                          >
-                            <i class="bi fs-6 bi-trash"></i>
+                          color="error"
+                          onClick={() => handleDelete(item)}
+                          size="small"
+                        >
+                          <i className="bi fs-6 bi-trash"></i>
                         </IconButton>
                       </td>
                     )}
@@ -191,6 +195,8 @@ const MandalSevakList = () => {
           </Table>
         </div>
       </div>
+
+      {/* Delete confirmation */}
       <Dialog
         open={openConfirmDialog}
         onClose={() => setOpenConfirmDialog(false)}
@@ -207,17 +213,7 @@ const MandalSevakList = () => {
           >
             Cancel
           </Button>
-          <Button
-            variant="contained"
-            onClick={() => {
-              if (itemToDelete) {
-                // Call the delete function with the selected item
-                handleDeleteConfirm(itemToDelete.sevak_id);
-              }
-              setOpenConfirmDialog(false);
-            }}
-            color="secondary"
-          >
+          <Button variant="contained" onClick={handleDeleteConfirm} color="secondary">
             Delete
           </Button>
         </DialogActions>

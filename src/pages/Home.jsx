@@ -1,4 +1,4 @@
-import React, { useEffect, useRef , useState } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import ListingTable from "../components/ListingTable";
 import AddSevaModal from "../components/AddSevaModal";
@@ -9,61 +9,68 @@ import { toast, ToastContainer } from "react-toastify";
 import { ProgressBar } from "react-bootstrap";
 
 const Home = () => {
+  // Safe read from localStorage
+  const sevakDetails = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("sevakDetails")) || {};
+    } catch {
+      return {};
+    }
+  })();
+  console.log(sevakDetails);
+  const sevak_id = sevakDetails?.sevak_id || "";
+  const sevak_target_raw = sevakDetails?.sevak_target ?? 0;
+  const filled_form_raw = sevakDetails?.filled_form ?? 0;
+  const achieved_target_raw = sevakDetails?.achieved_target ?? 0;
+
   const [showAddSeva, setShowAddSeva] = useState(false);
   const [filledForms, setFilledForms] = useState([]);
-  const { sevak_target, filled_form, achieved_target } = JSON.parse(
-    localStorage.getItem("sevakDetails")
-  );
-  const [formTarget, setFormTarget] = useState(filled_form);
-  const [achievedTarget, setAchievedTarget] = useState(achieved_target);
+  const [formTarget, setFormTarget] = useState(Number(filled_form_raw) || 0); // UI "Filled form" count
+  const [achievedTarget, setAchievedTarget] = useState(Number(achieved_target_raw) || 0);
 
-  const handleAddSeva = () => {
-    setShowAddSeva(true);
-  };
+  const sevak_target = Number(sevak_target_raw) || 0;
 
-  const sevak = JSON.parse(localStorage.getItem("sevakDetails"));
-  const sevak_id = sevak?.sevak_id; // Ensure this matches with the server response
-  const didInitRef = useRef(false);
-  useEffect(() => {
-    if (didInitRef.current) return;
-    didInitRef.current = true;
+  const handleAddSeva = () => setShowAddSeva(true);
 
-    if (!sevak_target || sevak_target <= 0) {
-      alert("કૃપા કરીને તમારા અન્નકુટ ફોર્મ લક્ષ્યને અપડેટ કરો.");
-    }
-    fetchFilledForms();
-  }, []);
   const fetchFilledForms = async () => {
+    if (!sevak_id) return;
     try {
       const res = await axios.post(`${BACKEND_ENDPOINT}seva/get_seva`, {
-        sevak_id: sevak_id,
+        sevak_id,
       });
-      setFilledForms(res.data.seva || []); // Ensure `seva` is in the response
-      console.log('response',res.data);
-      setFormTarget(res.data.seva.length);
-      setAchievedTarget(res.data.achieved_target);
+      const list = Array.isArray(res?.data?.seva) ? res.data.seva : [];
+      setFilledForms(list);
+      setFormTarget(list.length); // how many rows listed
+      setAchievedTarget(Number(res?.data?.achieved_target ?? 0));
     } catch (error) {
       console.error("Error fetching filled forms:", error);
     }
   };
+
   const progress = sevak_target > 0 ? (achievedTarget / sevak_target) * 100 : 0;
-  console.log('sevak_target',sevak_target);
-  console.log('achievedTarget',achievedTarget);
+  const progressClamped = Math.max(0, Math.min(100, Math.round(progress)));
+
   const handleDelete = async (id) => {
     try {
-      const res = await axios.put(`${BACKEND_ENDPOINT}seva/delete_seva`, {
+      const res = await axios.post(`${BACKEND_ENDPOINT}seva/delete_seva`, {
         seva_id: id,
       });
-      toast.success(res.data.message);
+      toast.success(res.data?.message || "Deleted");
       fetchFilledForms();
     } catch (error) {
       console.error("Unable to delete", error);
+      toast.error("Unable to delete");
     }
   };
 
+  // On mount + whenever modal closes/opens, refresh list
   useEffect(() => {
+    if (!sevak_target || sevak_target <= 0) {
+      alert("કૃપા કરીને તમારા અન્નકુટ ફોર્મ લક્ષ્યને અપડેટ કરો.");
+    }
     fetchFilledForms();
-  }, [showAddSeva]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showAddSeva, sevak_id]);
 
   return (
     <div>
@@ -78,15 +85,15 @@ const Home = () => {
         }}
       >
         <div style={{ width: "100%", padding: "10px", fontWeight: 600 }}>
-          <h7 style={{ fontWeight: 600 }}>Archived Target</h7>
+          <h7 style={{ fontWeight: 600 }}>Achieved Target</h7>
           <ProgressBar
-            // variant="error"
-            now={progress}
-            label={`${Math.round(progress)}%`}
+            now={progressClamped}
+            label={`${progressClamped}%`}
             className="custom-progress-bar"
           />
         </div>
       </div>
+
       <div
         style={{
           display: "flex",
@@ -101,24 +108,26 @@ const Home = () => {
           <h6>Filled form : {formTarget}</h6>
         </div>
       </div>
+
       <div>
-      {sevak_target > 0 && (
-        <div>
-          <Button color="primary" outline onClick={handleAddSeva}>
-            Add Seva
-          </Button>
-          <ListingTable
-            data={filledForms}
-            handleDelete={handleDelete}
-            refreshData={fetchFilledForms}
-          />
-        </div>
-      )}
-    </div>
+        {sevak_target > 0 && (
+          <div>
+            <Button color="primary" outline onClick={handleAddSeva}>
+              Add Seva
+            </Button>
+            <ListingTable
+              data={filledForms}
+              handleDelete={handleDelete}
+              refreshData={fetchFilledForms}
+            />
+          </div>
+        )}
+      </div>
 
       {showAddSeva && (
         <AddSevaModal modal={showAddSeva} setModal={setShowAddSeva} />
       )}
+
       <ToastContainer
         position="top-center"
         autoClose={5000}

@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import ChangePassword from "./pages/ChangePassword";
 import AnnkutSevakList from "./pages/AnnkutSevakList";
 import MandalSevakList from "./pages/MandalSevakList";
+import ReceiptBooks from "./pages/ReceiptBooks";
 
 function App() {
   return (
@@ -21,6 +22,9 @@ function App() {
         </Routes>
         <Routes>
           <Route path="/annkut-sevak-list" element={<AnnkutSevakList />} />
+        </Routes>
+        <Routes>
+          <Route path="/receipt-books" element={<ReceiptBooks />} />
         </Routes>
         <Routes>
           <Route path="/mandal-sevak-list" element={<MandalSevakList />} />

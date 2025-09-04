@@ -26,9 +26,6 @@ function Header(props) {
     navigate("/annkut-sevak-list");
     // props.setSevakView(!props.sevakView);
   };
-  const handleReceiptbook = () => {
-    navigate("/receipt-books");
-  };
 
   const handleView = () => {
     navigate("/home");
@@ -51,7 +48,6 @@ function Header(props) {
           <Nav className="me-auto" navbar>
             {role !== "Annkut Sevak" && (
               <div>
-                {" "}
                 <NavItem style={{ margin: "5px" }}>
                   <Button color="warning" onClick={handleView}>
                     Annkut Seva
@@ -62,9 +58,13 @@ function Header(props) {
                     Annkut Sevak list
                   </Button>
                 </NavItem>
+                {/* 🔥 NEW NavItem for Receipt Books page */}
                 <NavItem style={{ margin: "5px" }}>
-                  <Button color="secondary" onClick={handleReceiptbook}>
-                    Manage Receipt Books
+                  <Button
+                    color="success"
+                    onClick={() => navigate("/receipt-books")}
+                  >
+                    Receipt Books
                   </Button>
                 </NavItem>
               </div>
