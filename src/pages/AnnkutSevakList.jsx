@@ -356,6 +356,8 @@ export default function AnnkutSevakList() {
                   {rows.map((m, i) => {
                     const name = m?.name || m?.mandal_name || "Mandal";
                     const sanchalak = m?.sanchalak_name || "";
+                    const target = m?.mandal_target || 0;
+                    const filled_form = m?.mandal_filled_form || 0;
                     return (
                       <Grid item xs={12} sm={6} md={4} lg={3} key={`${name}-${i}`}>
                         <Card
@@ -378,6 +380,16 @@ export default function AnnkutSevakList() {
                             {sanchalak && (
                               <Box mt={1}>
                                 <Chip size="small" label={`Sanchalak: ${sanchalak}`} />
+                              </Box>
+                            )}
+                            {target && (
+                              <Box mt={1}>
+                                <Chip size="small" label={`Target: ${target}`} />
+                              </Box>
+                            )}
+                            {filled_form && (
+                              <Box mt={1}>
+                                <Chip size="small" label={`Filled Form: ${filled_form}`} />
                               </Box>
                             )}
                           </CardContent>
