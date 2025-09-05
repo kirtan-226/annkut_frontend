@@ -17,7 +17,7 @@ const Home = () => {
       return {};
     }
   })();
-  console.log(sevakDetails);
+  // console.log(sevakDetails);
   const sevak_id = sevakDetails?.sevak_id || "";
   const sevak_target_raw = sevakDetails?.sevak_target ?? 0;
   const filled_form_raw = sevakDetails?.filled_form ?? 0;

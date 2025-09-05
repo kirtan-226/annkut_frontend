@@ -10,15 +10,18 @@ import RadioGroup from "@mui/material/RadioGroup";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 import CircularProgress from "@mui/material/CircularProgress";
-import { Button, FormControlLabel } from "@mui/material";
+import { Button, FormControlLabel, InputLabel, MenuItem, Select } from "@mui/material";
 
 function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
-  // sevakData is the selected row from ListingTable
   const sevaId = useMemo(
     () => sevakData?.seva_id ?? sevakData?.id,
     [sevakData]
   );
 
+  // logged-in user (used to fetch their books)
+  const me = JSON.parse(localStorage.getItem("sevakDetails")) || {};
+  const mySevakCode = me?.sevak_code || me?.sevak_id || "";
+  console.log(mySevakCode,'mySevakCode');
   const [loader, setLoader] = useState(false);
   const [fetching, setFetching] = useState(false);
 
@@ -34,9 +37,42 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
   const [customAmount, setCustomAmount] = useState("");
   const [errors, setErrors] = useState({});
 
+  // books assigned to me (for dropdown)
+  const [myBooks, setMyBooks] = useState([]);
+  const [booksLoading, setBooksLoading] = useState(false);
+  const [booksError, setBooksError] = useState("");
+
   const toggle = () => setModal(!modal);
 
-  // Fetch latest seva by id when modal opens and use API response to fill the form
+  // Load books assigned to this user when modal opens
+  useEffect(() => {
+    if (!modal || !mySevakCode) return;
+    let ignore = false;
+
+    (async () => {
+      try {
+        setBooksLoading(true);
+        setBooksError("");
+        const res = await axios.post(`${BACKEND_ENDPOINT}ReceiptBooks/my_books`, {
+          sevak_code: mySevakCode,
+        });
+        const rows = res?.data?.books || [];
+        if (!ignore) setMyBooks(Array.isArray(rows) ? rows : []);
+      } catch (e) {
+        console.error("Fetch my books error:", e);
+        if (!ignore) {
+          setMyBooks([]);
+          setBooksError("Unable to load your books.");
+        }
+      } finally {
+        if (!ignore) setBooksLoading(false);
+      }
+    })();
+
+    return () => { ignore = true; };
+  }, [modal, mySevakCode]);
+
+  // Fetch seva details to prefill
   useEffect(() => {
     if (!modal || !sevaId) return;
 
@@ -48,11 +84,9 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
           seva_id: sevaId,
         });
 
-        // Support object or array payloads
         const raw = res?.data;
         const s = Array.isArray(raw) ? (raw[0] || {}) : (raw || {});
-        console.log(s);
-        // Pick fields from API first, then fall back to the row we clicked
+
         const bookNo =
           s.book_no ??
           s.book_number ??
@@ -67,18 +101,12 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
           sevakData?.reciept_no ??
           "";
 
-        const first =
-          s.sahyogi_first_name ?? sevakData?.sahyogi_first_name ?? "";
-        const middle =
-          s.sahyogi_middle_name ?? sevakData?.sahyogi_middle_name ?? "";
-        const last =
-          s.sahyogi_last_name ?? sevakData?.sahyogi_last_name ?? "";
-
+        const first = s.sahyogi_first_name ?? sevakData?.sahyogi_first_name ?? "";
+        const middle = s.sahyogi_middle_name ?? sevakData?.sahyogi_middle_name ?? "";
+        const last = s.sahyogi_last_name ?? sevakData?.sahyogi_last_name ?? "";
         const phone = s.sahyogi_number ?? sevakData?.sahyogi_number ?? "";
 
-        const amtRaw = String(
-          s.seva_amount ?? sevakData?.seva_amount ?? ""
-        ).trim();
+        const amtRaw = String(s.seva_amount ?? sevakData?.seva_amount ?? "").trim();
         const isPreset = amtRaw === "500" || amtRaw === "1000";
         const nextSevaAmount = isPreset ? amtRaw : "other";
         const nextCustom = isPreset ? "" : (amtRaw || "");
@@ -91,7 +119,7 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
             sahyogi_middle_name: String(middle),
             sahyogi_last_name: String(last),
             sahyogi_number: String(phone),
-            seva_amount: nextSevaAmount, // "500" | "1000" | "other"
+            seva_amount: nextSevaAmount,
           });
           setCustomAmount(nextCustom);
           setErrors({});
@@ -104,10 +132,8 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
       }
     })();
 
-    return () => {
-      ignore = true;
-    };
-  }, [modal, sevaId]);
+    return () => { ignore = true; };
+  }, [modal, sevaId, sevakData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -119,9 +145,10 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
 
     // Basic digit-only enforcement for number-ish fields
     let nextValue = value;
-    if (["book_no", "receipt_no", "sahyogi_number"].includes(name)) {
+    if (["receipt_no", "sahyogi_number"].includes(name)) {
       nextValue = value.replace(/[^\d]/g, "");
     }
+    // NOTE: book_no comes from a dropdown now (string), don’t strip digits there.
 
     setFormData((prev) => ({ ...prev, [name]: nextValue }));
   };
@@ -129,23 +156,18 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
   const handleCustomAmountChange = (e) => {
     const v = e.target.value.replace(/[^\d]/g, "");
     setCustomAmount(v);
-    // Keep "other" selected
     setFormData((prev) => ({ ...prev, seva_amount: "other" }));
   };
 
   const validateForm = () => {
-    let formErrors = {};
+    const formErrors = {};
 
-    if (!formData.book_no) formErrors.book_no = "બુક નંબર લાખો";
+    if (!formData.book_no) formErrors.book_no = "બુક નંબર પસંદ કરો";
     if (!formData.receipt_no) formErrors.receipt_no = "રસીદ નંબર લાખો";
-    if (!formData.sahyogi_first_name)
-      formErrors.sahyogi_first_name = "સહયોગી નું નામ લાખો";
-    if (!formData.sahyogi_last_name)
-      formErrors.sahyogi_last_name = "સહયોગી ની અટક લાખો";
-    if (!formData.sahyogi_middle_name)
-      formErrors.sahyogi_middle_name = "સહયોગી ના પિતા નું નામ લાખો";
-    if (!formData.sahyogi_number)
-      formErrors.sahyogi_number = "સહયોગી નો નંબર લાખો";
+    if (!formData.sahyogi_first_name) formErrors.sahyogi_first_name = "સહયોગી નું નામ લાખો";
+    if (!formData.sahyogi_last_name) formErrors.sahyogi_last_name = "સહયોગી ની અટક લાખો";
+    if (!formData.sahyogi_middle_name) formErrors.sahyogi_middle_name = "સહયોગી ના પિતા નું નામ લાખો";
+    if (!formData.sahyogi_number) formErrors.sahyogi_number = "સહયોગી નો નંબર લાખો";
 
     if (formData.seva_amount === "other") {
       if (!customAmount) {
@@ -172,10 +194,10 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
     try {
       await axios.put(`${BACKEND_ENDPOINT}seva/edit_seva`, {
         id: sevaId,
+        sevak_id: mySevakCode,
         book_no: formData.book_no,
-        // send both spellings to be compatible with backend/DB
+        // send both spellings to be compatible
         receipt_no: formData.receipt_no,
-        reciept_no: formData.receipt_no,
         sahyogi_first_name: formData.sahyogi_first_name,
         sahyogi_middle_name: formData.sahyogi_middle_name,
         sahyogi_last_name: formData.sahyogi_last_name,
@@ -195,11 +217,71 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
     }
   };
 
+  // helper label like "12 (1–50)"
+  const bookLabel = (b) => {
+    const s = b?.start_no ?? "";
+    const e = b?.end_no ?? "";
+    const range = s || e ? ` (${s}–${e || "-"})` : "";
+    return `${b?.book_no ?? ""}${range}`;
+  };
+
   return (
     <div>
       <Modal isOpen={modal} toggle={toggle}>
         <ModalHeader toggle={toggle}>Edit Annkut Seva</ModalHeader>
         <ModalBody>
+          {/* Book selector (dropdown) */}
+          <FormControl fullWidth variant="outlined" margin="normal" size="small">
+            <InputLabel id="book-no-select-label">બુક નંબર</InputLabel>
+            <Select
+              labelId="book-no-select-label"
+              label="બુક નંબર"
+              name="book_no"
+              value={formData.book_no}
+              onChange={handleChange}
+              error={!!errors.book_no}
+            >
+              {booksLoading && <MenuItem disabled>Loading…</MenuItem>}
+              {booksError && <MenuItem disabled>{booksError}</MenuItem>}
+              {!booksLoading && !booksError && myBooks.length === 0 && (
+                <MenuItem disabled>No assigned books</MenuItem>
+              )}
+              {myBooks.map((b) => (
+                <MenuItem key={b.book_no} value={String(b.book_no)}>
+                  {bookLabel(b)}
+                </MenuItem>
+              ))}
+              {/* Fallback: if existing seva has a book that isn’t in my current list (e.g. historical),
+                  ensure it is still selectable */}
+              {formData.book_no &&
+                !myBooks.some((b) => String(b.book_no) === String(formData.book_no)) && (
+                  <MenuItem value={String(formData.book_no)}>
+                    {String(formData.book_no)} (current)
+                  </MenuItem>
+                )}
+            </Select>
+            {errors.book_no && (
+              <div style={{ color: "#d32f2f", fontSize: 12, marginTop: 4 }}>{errors.book_no}</div>
+            )}
+          </FormControl>
+
+          <FormControl fullWidth variant="outlined" margin="normal">
+            <TextField
+              label="રસીદ નંબર"
+              name="receipt_no"
+              type="text"
+              value={formData.receipt_no}
+              onChange={handleChange}
+              variant="outlined"
+              color="secondary"
+              error={!!errors.receipt_no}
+              helperText={errors.receipt_no}
+              required
+              fullWidth
+              inputProps={{ inputMode: "numeric" }}
+            />
+          </FormControl>
+
           <FormControl fullWidth variant="outlined" margin="normal">
             <TextField
               label="સહયોગી ની અટક"
@@ -261,38 +343,6 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
             />
           </FormControl>
 
-          <FormControl fullWidth variant="outlined" margin="normal">
-            <TextField
-              label="બુક નંબર"
-              name="book_no"
-              type="text"
-              value={formData.book_no}
-              onChange={handleChange}
-              variant="outlined"
-              color="secondary"
-              error={!!errors.book_no}
-              helperText={errors.book_no}
-              required
-              fullWidth
-            />
-          </FormControl>
-
-          <FormControl fullWidth variant="outlined" margin="normal">
-            <TextField
-              label="રસીદ નંબર"
-              name="receipt_no"
-              type="text"
-              value={formData.receipt_no}
-              onChange={handleChange}
-              variant="outlined"
-              color="secondary"
-              error={!!errors.receipt_no}
-              helperText={errors.receipt_no}
-              required
-              fullWidth
-            />
-          </FormControl>
-
           <FormControl component="fieldset" margin="normal">
             <FormLabel component="legend">Amount</FormLabel>
             <RadioGroup
@@ -346,7 +396,6 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
         </ModalFooter>
       </Modal>
 
-      {/* Keep if you don’t have a global ToastContainer */}
       <ToastContainer position="top-center" autoClose={5000} pauseOnHover theme="colored" />
     </div>
   );

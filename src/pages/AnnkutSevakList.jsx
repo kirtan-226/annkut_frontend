@@ -33,7 +33,7 @@ import {
 export default function AnnkutSevakList() {
   // ---------- identity / role ----------
   const sevak = JSON.parse(localStorage.getItem("sevakDetails")) || {};
-  const role = sevak?.role || "";
+  const role = sevak?.role_code || "";
   const sevakId = sevak?.sevak_id;
 
   const leadershipRoles = [
@@ -44,8 +44,8 @@ export default function AnnkutSevakList() {
     "Admin",
   ];
 
-  const isAdmin = role === "Admin";
-  const isSanchalak = role === "Sanchalak";
+  const isAdmin = role === "ADMIN";
+  const isSanchalak = role === "SANCHALAK";
   const isLeader =
     isAdmin || leadershipRoles.some((r) => role?.toLowerCase().includes(r.toLowerCase()));
 
@@ -296,29 +296,60 @@ export default function AnnkutSevakList() {
 
         {/* Stats boxes */}
         <Grid container spacing={2} mb={2}>
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12}>
             <Paper sx={{ p: 2 }}>
-              <Typography variant="subtitle2" color="text.secondary">Target</Typography>
-              <Typography variant="h6">{formTarget?.total_target ?? 0}</Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Paper sx={{ p: 2 }}>
-              <Typography variant="subtitle2" color="text.secondary">Filled Forms</Typography>
-              <Typography variant="h6">{formTarget?.total_filled_form ?? 0}</Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Paper sx={{ p: 2 }}>
-              <Typography variant="subtitle2" color="text.secondary">₹500 Seva</Typography>
-              <Typography variant="h6">{formTarget?.seva_five_hundered ?? 0}</Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Paper sx={{ p: 2 }}>
-              <Typography variant="subtitle2" color="text.secondary">₹1000 / Above</Typography>
+              <Typography variant="subtitle2" color="text.secondary">
+                Target
+              </Typography>
               <Typography variant="h6">
-                {(formTarget?.seva_thousand ?? 0) + (formTarget?.seva_other ?? 0)}
+                {formTarget?.total_target ?? 0}
+              </Typography>
+            </Paper>
+          </Grid>
+        </Grid>
+
+        {/* Row with 4 cards */}
+        <Grid container spacing={2} mb={2}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper sx={{ p: 2 }}>
+              <Typography variant="subtitle2" color="text.secondary">
+                Filled Forms
+              </Typography>
+              <Typography variant="h6">
+                {formTarget?.total_filled_form ?? 0}
+              </Typography>
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper sx={{ p: 2 }}>
+              <Typography variant="subtitle2" color="text.secondary">
+                ₹500 Seva
+              </Typography>
+              <Typography variant="h6">
+                {formTarget?.seva_five_hundered ?? 0}
+              </Typography>
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper sx={{ p: 2 }}>
+              <Typography variant="subtitle2" color="text.secondary">
+                ₹1000
+              </Typography>
+              <Typography variant="h6">
+                {formTarget?.seva_thousand ?? 0}
+              </Typography>
+            </Paper>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper sx={{ p: 2 }}>
+              <Typography variant="subtitle2" color="text.secondary">
+                Other
+              </Typography>
+              <Typography variant="h6">
+                {formTarget?.seva_other ?? 0}
               </Typography>
             </Paper>
           </Grid>
@@ -525,6 +556,7 @@ export default function AnnkutSevakList() {
           modal={editModal}
           setModal={setEditModal}
           sevakData={selectedSevakRow}
+          sevak_id={sevakId}
           refreshData={() =>
             isLeader && selectedMandal
               ? fetchSevaksForScope({ mandalName: selectedMandal })
