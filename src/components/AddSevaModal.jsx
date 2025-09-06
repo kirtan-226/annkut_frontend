@@ -31,7 +31,7 @@ function AddSevaModal({ modal, setModal }) {
   // form
   const [formData, setFormData] = useState({
     book_no: "",                 // selected from dropdown
-    reciept_no: "",              // NOTE: backend expects "reciept_no"
+    receipt_no: "",              // NOTE: backend expects "receipt_no"
     seva_amount: "500",          // "500" | "1000" | "other"
     sahyogi_first_name: "",
     sahyogi_middle_name: "",
@@ -95,7 +95,7 @@ function AddSevaModal({ modal, setModal }) {
 
     // digit-only for receipt & phone
     let v = value;
-    if (name === "reciept_no" || name === "sahyogi_number") {
+    if (name === "receipt_no" || name === "sahyogi_number") {
       v = value.replace(/[^\d]/g, "");
     }
 
@@ -111,7 +111,7 @@ function AddSevaModal({ modal, setModal }) {
   const validateForm = () => {
     const errs = {};
     if (!formData.book_no) errs.book_no = "બુક નંબર પસંદ કરો";
-    if (!formData.reciept_no) errs.reciept_no = "રસીદ નંબર લાખો";
+    if (!formData.receipt_no) errs.receipt_no = "રસીદ નંબર લાખો";
 
     if (!formData.sahyogi_last_name)   errs.sahyogi_last_name   = "સહયોગી ની અટક લાખો";
     if (!formData.sahyogi_middle_name) errs.sahyogi_middle_name = "સહયોગી ના પિતા નું નામ લાખો";
@@ -128,11 +128,11 @@ function AddSevaModal({ modal, setModal }) {
 
     // optional: receipt in range validation (when we know range)
     if (selectedBook) {
-      const r = Number(formData.reciept_no);
+      const r = Number(formData.receipt_no);
       const s = Number(selectedBook.start_no ?? 0);
       const e = Number(selectedBook.end_no ?? 0);
       if (s && e && (r < s || r > e)) {
-        errs.reciept_no = `રસીદ ${s} થી ${e} વચ્ચે લાખો`;
+        errs.receipt_no = `રસીદ ${s} થી ${e} વચ્ચે લાખો`;
       }
     }
 
@@ -154,7 +154,7 @@ function AddSevaModal({ modal, setModal }) {
       const payload = {
         // your backend expects these exact fields
         book_no: formData.book_no,
-        reciept_no: formData.reciept_no, // NOTE spelling
+        receipt_no: formData.receipt_no, // NOTE spelling
         sahyogi_first_name:  formData.sahyogi_first_name,
         sahyogi_middle_name: formData.sahyogi_middle_name,
         sahyogi_last_name:   formData.sahyogi_last_name,
@@ -171,7 +171,7 @@ function AddSevaModal({ modal, setModal }) {
         // reset
         setFormData({
           book_no: "",
-          reciept_no: "",
+          receipt_no: "",
           seva_amount: "500",
           sahyogi_first_name: "",
           sahyogi_middle_name: "",
@@ -227,14 +227,14 @@ function AddSevaModal({ modal, setModal }) {
           <FormControl fullWidth variant="outlined" margin="normal">
             <TextField
               label="રસીદ નંબર"
-              name="reciept_no"
+              name="receipt_no"
               type="text"
-              value={formData.reciept_no}
+              value={formData.receipt_no}
               onChange={handleChange}
               variant="outlined"
               color="secondary"
-              error={!!errors.reciept_no}
-              helperText={errors.reciept_no}
+              error={!!errors.receipt_no}
+              helperText={errors.receipt_no}
               required
               fullWidth
               inputProps={{ inputMode: "numeric" }}
@@ -258,21 +258,6 @@ function AddSevaModal({ modal, setModal }) {
 
           <FormControl fullWidth variant="outlined" margin="normal">
             <TextField
-              label="સહયોગી ના પિતા/પતિ નું નામ"
-              name="sahyogi_middle_name"
-              type="text"
-              value={formData.sahyogi_middle_name}
-              onChange={handleChange}
-              variant="outlined"
-              color="secondary"
-              error={!!errors.sahyogi_middle_name}
-              helperText={errors.sahyogi_middle_name}
-              fullWidth
-            />
-          </FormControl>
-
-          <FormControl fullWidth variant="outlined" margin="normal">
-            <TextField
               label="સહયોગી નુ નામ"
               name="sahyogi_first_name"
               type="text"
@@ -282,6 +267,21 @@ function AddSevaModal({ modal, setModal }) {
               color="secondary"
               error={!!errors.sahyogi_first_name}
               helperText={errors.sahyogi_first_name}
+              fullWidth
+            />
+          </FormControl>
+
+          <FormControl fullWidth variant="outlined" margin="normal">
+            <TextField
+              label="સહયોગી ના પિતા/પતિ નું નામ"
+              name="sahyogi_middle_name"
+              type="text"
+              value={formData.sahyogi_middle_name}
+              onChange={handleChange}
+              variant="outlined"
+              color="secondary"
+              error={!!errors.sahyogi_middle_name}
+              helperText={errors.sahyogi_middle_name}
               fullWidth
             />
           </FormControl>

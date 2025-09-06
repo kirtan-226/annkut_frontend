@@ -259,12 +259,27 @@ export default function ReceiptBooks() {
     return <Chip size="small" label="Unassigned" variant="outlined" />;
   };
 
-  const formatRange = (row) => {
-    const s = Number(row?.start_no || 0);
-    const e = Number(row?.end_no || 0);
-    if (!s && !e) return "-";
-    return `${row.start_no} – ${row.end_no || "-"}`;
-  };
+  const TOTAL_PER_BOOK = 25;
+
+  const formatRange = React.useCallback((row) => {
+    // Treat end_no as "last used receipt number" once a book is deassigned.
+    const lastUsed = Number(row?.end_no ?? 0);
+
+    // For Sanchalak view:
+    // - Default: 1–25
+    // - If a lastUsed exists and it's < 25, show "lastUsed – 25"
+    if (isSanchalak) {
+      if (lastUsed > 0 && lastUsed < TOTAL_PER_BOOK) {
+        return `${lastUsed} – ${TOTAL_PER_BOOK}`;
+      }
+      return `1 – ${TOTAL_PER_BOOK}`;
+    }
+
+    // For Admin or other roles, keep the explicit backend range if present.
+    const s = Number(row?.start_no || 1);
+    const e = Number(row?.end_no || TOTAL_PER_BOOK);
+    return `${s} – ${e}`;
+  }, [isSanchalak]);
 
   // ---------- modals open/close ----------
   const openAssignModal = async (book_no) => {

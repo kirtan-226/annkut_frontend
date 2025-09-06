@@ -96,9 +96,9 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
 
         const receipt =
           s.receipt_no ??
-          s.reciept_no ??
+          s.receipt_no ??
           sevakData?.receipt_no ??
-          sevakData?.reciept_no ??
+          sevakData?.receipt_no ??
           "";
 
         const first = s.sahyogi_first_name ?? sevakData?.sahyogi_first_name ?? "";
@@ -299,21 +299,6 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
 
           <FormControl fullWidth variant="outlined" margin="normal">
             <TextField
-              label="સહયોગી ના પિતા/પતિ નું નામ"
-              name="sahyogi_middle_name"
-              type="text"
-              value={formData.sahyogi_middle_name}
-              onChange={handleChange}
-              variant="outlined"
-              color="secondary"
-              error={!!errors.sahyogi_middle_name}
-              helperText={errors.sahyogi_middle_name}
-              fullWidth
-            />
-          </FormControl>
-
-          <FormControl fullWidth variant="outlined" margin="normal">
-            <TextField
               label="સહયોગી નુ નામ"
               name="sahyogi_first_name"
               type="text"
@@ -323,6 +308,21 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
               color="secondary"
               error={!!errors.sahyogi_first_name}
               helperText={errors.sahyogi_first_name}
+              fullWidth
+            />
+          </FormControl>
+
+          <FormControl fullWidth variant="outlined" margin="normal">
+            <TextField
+              label="સહયોગી ના પિતા/પતિ નું નામ"
+              name="sahyogi_middle_name"
+              type="text"
+              value={formData.sahyogi_middle_name}
+              onChange={handleChange}
+              variant="outlined"
+              color="secondary"
+              error={!!errors.sahyogi_middle_name}
+              helperText={errors.sahyogi_middle_name}
               fullWidth
             />
           </FormControl>

@@ -33,7 +33,14 @@ const Login = () => {
         localStorage.setItem("sevakDetails", JSON.stringify(sevak));
 
         toast.success(res.data.message);
-        navigate("/home");
+
+        if(res.data.sevak.role !== 'Sant Nirdeshak')
+        {
+          navigate("/home");
+        }
+        else{
+          navigate("/annkut-sevak-list");
+        }
       } else {
         toast.error("Login Failed: " + res.data.message);
       }

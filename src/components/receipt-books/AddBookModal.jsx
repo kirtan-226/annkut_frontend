@@ -1,3 +1,4 @@
+// src/components/receipt-books/AddBookModal.jsx
 import React from "react";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, TextField, Button } from "@mui/material";
 import axios from "axios";
@@ -10,11 +11,11 @@ const AddBookModal = ({
   sevakCode,
   onAdded,
 }) => {
-  const [form, setForm] = React.useState({ book_no: "", start_no: "", end_no: "" });
+  const [form, setForm] = React.useState({ book_no: "", start_no: "" });
   const [submitting, setSubmitting] = React.useState(false);
 
   React.useEffect(() => {
-    if (open) setForm({ book_no: "", start_no: "", end_no: "" });
+    if (open) setForm({ book_no: "", start_no: "" }); // no end_no field here
   }, [open]);
 
   const update = (k) => (e) =>
@@ -23,14 +24,9 @@ const AddBookModal = ({
   const submit = async () => {
     const book_no = Number(form.book_no);
     const start_no = Number(form.start_no);
-    const end_no = Number(form.end_no);
 
-    if (!book_no || !start_no || !end_no) {
-      alert("Please enter all fields.");
-      return;
-    }
-    if (start_no > end_no) {
-      alert("Start number must be less than or equal to end number.");
+    if (!book_no || !start_no) {
+      alert("Please enter Book Number and Start Receipt Number.");
       return;
     }
     if (!activeMandal) {
@@ -44,7 +40,7 @@ const AddBookModal = ({
         sevak_code: sevakCode,
         book_no,
         start_no,
-        end_no,
+        end_no: null, // always null at creation
         to_mandal_name: activeMandal,
       });
       onClose?.();
@@ -80,14 +76,6 @@ const AddBookModal = ({
           inputMode="numeric"
           value={form.start_no}
           onChange={update("start_no")}
-        />
-        <TextField
-          fullWidth
-          margin="dense"
-          label="End Receipt Number"
-          inputMode="numeric"
-          value={form.end_no}
-          onChange={update("end_no")}
         />
       </DialogContent>
       <DialogActions>

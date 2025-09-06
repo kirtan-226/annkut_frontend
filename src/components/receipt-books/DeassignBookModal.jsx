@@ -3,19 +3,11 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Typography, TextFiel
 import axios from "axios";
 import { BACKEND_ENDPOINT } from "../../api/api";
 
-const DeassignBookModal = ({
-  open,
-  onClose,
-  bookNo,
-  sevakCode,
-  onDeassigned,
-}) => {
+const DeassignBookModal = ({ open, onClose, bookNo, sevakCode, onDeassigned }) => {
   const [lastUsedNo, setLastUsedNo] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
 
-  React.useEffect(() => {
-    if (open) setLastUsedNo("");
-  }, [open]);
+  React.useEffect(() => { if (open) setLastUsedNo(""); }, [open]);
 
   const submit = async () => {
     try {
@@ -40,7 +32,7 @@ const DeassignBookModal = ({
       <DialogTitle>Deassign Book {bookNo}</DialogTitle>
       <DialogContent>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Optionally record the last used receipt number.
+          Optionally record the <strong>last used receipt number</strong> (1–25). The next time this book is assigned, collection can continue from the next number.
         </Typography>
         <TextField
           fullWidth
@@ -49,7 +41,7 @@ const DeassignBookModal = ({
           margin="dense"
           value={lastUsedNo}
           onChange={(e) => setLastUsedNo(e.target.value.replace(/\D/g, ""))}
-          helperText="If provided, we'll record the last receipt used."
+          helperText="Leave empty if none used."
         />
       </DialogContent>
       <DialogActions>

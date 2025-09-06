@@ -6,15 +6,7 @@ import {
 import axios from "axios";
 import { BACKEND_ENDPOINT } from "../../api/api";
 
-const AssignBookModal = ({
-  open,
-  onClose,
-  activeMandal,
-  sevakId,     // for roster fetch
-  sevakCode,   // for assign API
-  bookNo,
-  onAssigned,
-}) => {
+const AssignBookModal = ({ open, onClose, activeMandal, sevakId, sevakCode, bookNo, onAssigned }) => {
   const [roster, setRoster] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
   const [err, setErr] = React.useState("");
@@ -41,23 +33,25 @@ const AssignBookModal = ({
     }
   }, [open, activeMandal, sevakId]);
 
-  React.useEffect(() => {
-    loadRoster();
-  }, [loadRoster]);
+  React.useEffect(() => { loadRoster(); }, [loadRoster]);
 
   const submit = async () => {
-    if (!selectedKaryakarCode) {
-      alert("Please select a karyakar.");
-      return;
-    }
+    if (!selectedKaryakarCode) return alert("Please select a karyakar.");
     try {
       setLoading(true);
       setErr("");
-      await axios.post(`${BACKEND_ENDPOINT}ReceiptBooks/assign`, {
+      const res = await axios.post(`${BACKEND_ENDPOINT}ReceiptBooks/assign`, {
         sevak_code: sevakCode,
         book_no: Number(bookNo),
-        to_user_id: String(selectedKaryakarCode), // target sevak's sevak_code
+        to_user_id: String(selectedKaryakarCode),
       });
+
+      // If backend returns next_receipt_no, show it once.
+      const next = res?.data?.next_receipt_no;
+      if (next) {
+        alert(`Assigned. Next receipt to use: ${next}`);
+      }
+
       onClose?.();
       onAssigned?.();
     } catch (e) {
@@ -104,12 +98,8 @@ const AssignBookModal = ({
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} color="error" variant="outlined">
-          Cancel
-        </Button>
-        <Button onClick={submit} variant="contained" disabled={loading || !selectedKaryakarCode}>
-          Assign
-        </Button>
+        <Button onClick={onClose} color="error" variant="outlined">Cancel</Button>
+        <Button onClick={submit} variant="contained" disabled={loading || !selectedKaryakarCode}>Assign</Button>
       </DialogActions>
     </Dialog>
   );
