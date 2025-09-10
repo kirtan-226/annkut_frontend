@@ -9,6 +9,8 @@ const DeassignBookModal = ({ open, onClose, bookNo, sevakCode, onDeassigned }) =
 
   React.useEffect(() => { if (open) setLastUsedNo(""); }, [open]);
 
+  console.log(lastUsedNo);
+
   const submit = async () => {
     try {
       setSubmitting(true);

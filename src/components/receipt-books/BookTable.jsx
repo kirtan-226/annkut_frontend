@@ -21,7 +21,7 @@ const BookTable = ({
 }) => {
   const showActions = isAdmin || isSanchalak;
   const emptyColSpan = showActions ? 5 : 4;
-
+  console.log(rows);
   return (
     <TableContainer component={Paper} sx={{ maxHeight: 650 }}>
       <Table stickyHeader>
@@ -36,7 +36,7 @@ const BookTable = ({
         </TableHead>
         <TableBody>
           {(rows || []).map((row, idx) => {
-            const lastUsed = Number(row?.end_no ?? 0);           // treat end_no as "last receipt used"
+            const lastUsed = row?.last_used_no;           // treat end_no as "last receipt used"
             const isSubmitted =
               (typeof row?.status === "string" && row.status.toLowerCase() === "submitted") ||
               !!row?.submitted_at;
@@ -44,11 +44,11 @@ const BookTable = ({
             const assigned  = !!(row?.issued_to_user_id || row?.issued_to_name);
             const fullyUsed = lastUsed >= CAP;                    // all receipts used
             const canAssign = !assigned && !isSubmitted && !fullyUsed && !!row?.book_no;
-
+            console.log(assigned,isSubmitted,fullyUsed,row?.book_no,lastUsed);
             return (
               <TableRow key={row?.id || row?.book_no || idx} hover>
                 <TableCell>{row?.book_no ?? "-"}</TableCell>
-                <TableCell>{formatRange(row)}</TableCell>
+                <TableCell>{`${row?.last_used_no || row?.start_no } - ${`25`}`}</TableCell>
                 <TableCell>
                   {row?.issued_on ? new Date(row.issued_on).toLocaleDateString() : "-"}
                 </TableCell>

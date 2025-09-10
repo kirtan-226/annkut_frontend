@@ -70,6 +70,7 @@ function AddSevaModal({ modal, setModal }) {
           sevak_code: mySevakCode,
         });
         const rows = res?.data?.books || [];
+        console.log('qwerty',rows);
         if (!ignore) setMyBooks(Array.isArray(rows) ? rows : []);
       } catch (e) {
         console.error("my_books error:", e);
@@ -191,7 +192,7 @@ function AddSevaModal({ modal, setModal }) {
       setLoader(false);
     }
   };
-
+  // console.log(myBooks,'sdsdcsdcsdcsdcsdc');
   return (
     <div>
       <Modal isOpen={modal} toggle={toggle}>

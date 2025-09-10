@@ -21,7 +21,7 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
   // logged-in user (used to fetch their books)
   const me = JSON.parse(localStorage.getItem("sevakDetails")) || {};
   const mySevakCode = me?.sevak_code || me?.sevak_id || "";
-  console.log(mySevakCode,'mySevakCode');
+  // console.log(mySevakCode,'mySevakCode');
   const [loader, setLoader] = useState(false);
   const [fetching, setFetching] = useState(false);
 
@@ -57,6 +57,7 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
           sevak_code: mySevakCode,
         });
         const rows = res?.data?.books || [];
+        console.log(rows,'sdsdcsdcsdcsdcsdcsdcsdcsdcsdcsdc')
         if (!ignore) setMyBooks(Array.isArray(rows) ? rows : []);
       } catch (e) {
         console.error("Fetch my books error:", e);
