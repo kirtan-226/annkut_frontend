@@ -12,6 +12,15 @@ import FormLabel from "@mui/material/FormLabel";
 import CircularProgress from "@mui/material/CircularProgress";
 import { Button, FormControlLabel, InputLabel, MenuItem, Select } from "@mui/material";
 
+function getBackendMessage(err) {
+  // Only show message coming from backend JSON
+  const data = err?.response?.data;
+  if (data && typeof data === "object" && typeof data.message === "string") {
+    return data.message;
+  }
+  return null; // no fallback text
+}
+
 function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
   const sevaId = useMemo(
     () => sevakData?.seva_id ?? sevakData?.id,
@@ -57,7 +66,7 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
           sevak_code: mySevakCode,
         });
         const rows = res?.data?.books || [];
-        console.log(rows,'sdsdcsdcsdcsdcsdcsdcsdcsdcsdcsdc')
+        // console.log(rows,'sdsdcsdcsdcsdcsdcsdcsdcsdcsdcsdc')
         if (!ignore) setMyBooks(Array.isArray(rows) ? rows : []);
       } catch (e) {
         console.error("Fetch my books error:", e);
@@ -193,26 +202,43 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
     }
 
     try {
-      await axios.put(`${BACKEND_ENDPOINT}seva/edit_seva`, {
+      const res = await axios.put(`${BACKEND_ENDPOINT}seva/edit_seva`, {
         id: sevaId,
         sevak_id: mySevakCode,
         book_no: formData.book_no,
-        // send both spellings to be compatible
         receipt_no: formData.receipt_no,
         sahyogi_first_name: formData.sahyogi_first_name,
         sahyogi_middle_name: formData.sahyogi_middle_name,
         sahyogi_last_name: formData.sahyogi_last_name,
         sahyogi_number: formData.sahyogi_number || null,
-        seva_amount:
-          formData.seva_amount === "other" ? customAmount : formData.seva_amount,
+        seva_amount: formData.seva_amount === "other" ? customAmount : formData.seva_amount,
       });
 
-      toast.success("Seva updated successfully");
+      // Show exactly what backend sent if available
+      const okMsg = (res?.data && typeof res.data.message === "string")
+        ? res.data.message
+        : "Seva updated successfully";
+      toast.success(okMsg);
+
       toggle();
-      refreshData && refreshData();
+      if (typeof refreshData === "function") refreshData();
     } catch (error) {
       console.error("Error editing seva:", error);
-      toast.error("Failed to update seva.");
+
+      const data = error?.response?.data;
+
+      // Inline field errors, if backend provided them
+      if (data?.errors && typeof data.errors === "object" && !Array.isArray(data.errors)) {
+        setErrors((prev) => ({ ...prev, ...data.errors }));
+      }
+
+      // Only show backend-provided message (no HTTP prefixes or fallbacks)
+      const msg = getBackendMessage(error);
+      if (msg) {
+        toast.error(msg);
+      }
+      // else: do nothing (or keep a generic if you *really* want one)
+      // else { toast.error("Failed to update seva."); }
     } finally {
       setLoader(false);
     }
