@@ -103,6 +103,13 @@ function AddSevaModal({ modal, setModal }) {
     setFormData((p) => ({ ...p, [name]: v }));
   };
 
+  const handleBookChange = (e) => {
+    const value = e.target.value;
+    const b = myBooks.find((x) => String(x.book_no) === String(value));
+    const next = b?.next_receipt_no ? String(b.next_receipt_no) : "";
+    setFormData((p) => ({ ...p, book_no: value, receipt_no: next }));
+  };
+
   const handleCustomAmountChange = (e) => {
     const v = e.target.value.replace(/[^\d]/g, "");
     setCustomAmount(v);
@@ -204,9 +211,8 @@ function AddSevaModal({ modal, setModal }) {
             <Select
               labelId="book-select-label"
               label="બુક નંબર"
-              name="book_no"
               value={formData.book_no}
-              onChange={handleChange}
+              onChange={handleBookChange}
               error={!!errors.book_no}
             >
               {booksLoading && <MenuItem disabled>Loading…</MenuItem>}
@@ -227,18 +233,20 @@ function AddSevaModal({ modal, setModal }) {
 
           <FormControl fullWidth variant="outlined" margin="normal">
             <TextField
-              label="રસીદ નંબર"
+              label="રસીદ નંબર (auto)"
               name="receipt_no"
-              type="text"
               value={formData.receipt_no}
-              onChange={handleChange}
               variant="outlined"
               color="secondary"
               error={!!errors.receipt_no}
-              helperText={errors.receipt_no}
+              helperText={
+                errors.receipt_no ||
+                (selectedBook ? `Next: ${selectedBook.next_receipt_no}` : "પહેલા બુક પસંદ કરો")
+              }
               required
               fullWidth
-              inputProps={{ inputMode: "numeric" }}
+              InputProps={{ readOnly: true }}
+              disabled
             />
           </FormControl>
 
