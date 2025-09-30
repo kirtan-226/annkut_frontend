@@ -76,6 +76,75 @@ const BookTable = ({
                         >
                           Delete
                         </Button>
+                        {canAssign ? (
+                          <Button
+                            size="small"
+                            variant="contained"
+                            onClick={() => onAssign?.(row?.book_no)}
+                            disabled={loading}
+                            sx={{ mr: 1 }}
+                          >
+                            Assign
+                          </Button>
+                        ) : (
+                          <Tooltip
+                            title={
+                              isSubmitted
+                                ? "Book already submitted"
+                                : assigned
+                                ? "Already assigned — deassign first"
+                                : fullyUsed
+                                ? `All ${CAP} receipts used — submit instead`
+                                : !row?.book_no
+                                ? "Missing book number"
+                                : ""
+                            }
+                          >
+                            <span>
+                              <Button size="small" variant="contained" disabled sx={{ mr: 1 }}>
+                                Assign
+                              </Button>
+                            </span>
+                          </Tooltip>
+                        )}
+
+                        {/* If assigned (and not submitted), allow Deassign + Submit */}
+                        {assigned && !isSubmitted && (
+                          <>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              color="warning"
+                              onClick={() => onDeassign?.(row?.book_no)}
+                              disabled={loading}
+                              sx={{ mr: 1 }}
+                            >
+                              Deassign
+                            </Button>
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              color="success"
+                              onClick={() => onSubmitBook?.(row?.book_no)}
+                              disabled={loading}
+                            >
+                              Submit
+                            </Button>
+                          </>
+                        )}
+
+                        {/* If NOT assigned but fully used (and not submitted), allow Submit */}
+                        {!assigned && fullyUsed && !isSubmitted && (
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            color="success"
+                            onClick={() => onSubmitBook?.(row?.book_no)}
+                            disabled={loading}
+                          >
+                            Submit
+                          </Button>
+                        )}
                       </>
                     ) : (
                       // SANCHALAK actions

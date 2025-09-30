@@ -487,8 +487,8 @@ export default function AnnkutSevakList() {
                     <TableCell>Name</TableCell>
                     <TableCell>Mandal</TableCell>
                     <TableCell>Form Filled</TableCell>
-                    <TableCell>Previous Target</TableCell>
                     <TableCell>Target</TableCell>
+                    <TableCell>Previous Target</TableCell>
                     <TableCell>Phone</TableCell>
                     {(isSanchalak || isAdmin) && <TableCell>Actions</TableCell>}
                   </TableRow>
@@ -500,8 +500,8 @@ export default function AnnkutSevakList() {
                       <TableCell>{row?.name ?? "-"}</TableCell>
                       <TableCell>{row?.mandal_name ?? "-"}</TableCell>
                       <TableCell>{row?.filled_form ?? 0}</TableCell>
-                      <TableCell>{row?.previous_target ?? 0}</TableCell>
                       <TableCell>{row?.sevak_target ?? 0}</TableCell>
+                      <TableCell>{row?.previous_target ?? 0}</TableCell>
                       <TableCell>{row?.phone_number ?? "-"}</TableCell>
                       {(isSanchalak || isAdmin) && (
                         <TableCell>

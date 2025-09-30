@@ -34,7 +34,7 @@ const Login = () => {
 
         toast.success(res.data.message);
 
-        if(res.data.sevak.role !== 'Sant Nirdeshak')
+        if(res.data.sevak.role !== 'Sant Nirdeshak' && res.data.sevak.role !== 'Admin')
         {
           navigate("/home");
         }
