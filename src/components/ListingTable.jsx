@@ -70,7 +70,7 @@ const ListingTable = ({ data = [], handleDelete, refreshData }) => {
                     <i className="bi fs-6 bi-pencil" />
                   </IconButton>
 
-                  {typeof handleDelete === "function" && (
+                  {/* {typeof handleDelete === "function" && (
                     <IconButton
                       color="error"
                       onClick={() => requestDelete(item)}
@@ -79,7 +79,7 @@ const ListingTable = ({ data = [], handleDelete, refreshData }) => {
                     >
                       <FaTrash />
                     </IconButton>
-                  )}
+                  )} */}
                 </td>
               </tr>
             );

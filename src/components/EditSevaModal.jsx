@@ -366,7 +366,7 @@ function EditSevaModal({ modal, setModal, sevakData, refreshData }) {
               error={Boolean(errors.sahyogi_number)}
               helperText={errors.sahyogi_number}
               fullWidth
-              inputProps={{ inputMode: "numeric", pattern: "[0-9]{10}", maxLength: 10 }}
+              inputProps={{ inputMode: "numeric", pattern: "[0-9]{10}", maxLength: 10 ,minLength:10 }}
             />
           </FormControl>
 

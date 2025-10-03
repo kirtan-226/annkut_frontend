@@ -45,10 +45,11 @@ function AddSevaModal({ modal, setModal }) {
 
   // Label helper: "12 (1–50)"
   const bookLabel = (b) => {
-    const s = b?.start_no ?? "";
-    const e = b?.end_no ?? "";
-    const range = s || e ? ` (${s}–${e || "-"})` : "";
-    return `${b?.book_no ?? ""}${range}`;
+    // const s = b?.start_no ?? "";
+    // const e = b?.end_no ?? "";
+    // const range = s || e ? ` (${s}–${e || "-"})` : "";
+    // return `${b?.book_no ?? ""}${range}`;
+    return `${b?.book_no ?? ""}`;
   };
 
   // Currently selected book meta (for range validation)
