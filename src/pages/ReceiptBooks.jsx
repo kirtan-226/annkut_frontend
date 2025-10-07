@@ -41,7 +41,7 @@ export default function ReceiptBooks() {
   const isAdmin = role === "ADMIN";
   const isSanchalak = role === "SANCHALAK";
   const user_mandal = sevak?.mandal_name || "";
-  console.log(role);
+  // console.log(role);
   // ---------- state ----------
   const [mandals, setMandals] = React.useState([]);
   const [books, setBooks] = React.useState([]);
@@ -62,6 +62,9 @@ export default function ReceiptBooks() {
   // Assign modal
   const [assignOpen, setAssignOpen] = React.useState(false);
   const [assignBookNo, setAssignBookNo] = React.useState(null);
+  const [deassignInitialLastUsed, setDeassignInitialLastUsed] = React.useState("");
+  const [deassignEndNo, setDeassignEndNo] = React.useState(50);
+  const [deassignReadOnly, setDeassignReadOnly] = React.useState(false);
 
   // Deassign modal
   const [deassignOpen, setDeassignOpen] = React.useState(false);
@@ -261,6 +264,20 @@ export default function ReceiptBooks() {
 
   const TOTAL_PER_BOOK = 25;
 
+ const deriveInitialLastUsed = (row) => {
+  const last = Number(row?.last_used_no || 0);
+  const next = Number(row?.next_receipt_no || 0);
+  const end  = Number(row?.end_no || 50);
+
+  let guess = 0;
+  if (last > 0)       guess = last;     // prefer server's last_used_no
+  else if (next > 1)  guess = next - 1; // else derive from next
+
+  if (guess < 1) guess = 0;             // keep empty if unused
+  if (guess > end) guess = end;         // clamp to end
+  return guess ? String(guess) : "";
+};
+
   const formatRange = React.useCallback((row) => {
     // Treat end_no as "last used receipt number" once a book is deassigned.
     const lastUsed = Number(row?.end_no ?? 0);
@@ -297,6 +314,19 @@ export default function ReceiptBooks() {
 
   const openDeassignModal = (book_no) => {
     setDeassignBookNo(book_no);
+
+    const row = (books || []).find(b => String(b?.book_no) === String(book_no));
+    if (row) {
+      const lastUsed = row?.last_used_no !== null ? String(row.last_used_no) : "0";
+      setDeassignInitialLastUsed(lastUsed);
+      setDeassignEndNo(Number(row?.end_no || 50));
+      setDeassignReadOnly(row?.last_used_no !== null); // make readonly if already exists
+    } else {
+      setDeassignInitialLastUsed("0");
+      setDeassignEndNo(50);
+      setDeassignReadOnly(false);
+    }
+
     setDeassignOpen(true);
   };
   const closeDeassignModal = () => {
@@ -454,6 +484,9 @@ export default function ReceiptBooks() {
         bookNo={deassignBookNo}
         sevakCode={sevakCode}
         onDeassigned={() => fetchBooksServer({ mandal: activeMandal, code: sevakCode })}
+        initialLastUsedNo={deassignInitialLastUsed}
+        endNo={deassignEndNo}
+        readOnly={deassignReadOnly}
       />
 
       <AddBookModal
