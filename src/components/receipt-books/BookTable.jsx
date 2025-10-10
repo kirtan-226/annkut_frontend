@@ -4,7 +4,7 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, Tooltip
 } from "@mui/material";
 
-const CAP = 25; // max receipts per book
+const CAP = 50; // max receipts per book
 
 const BookTable = ({
   rows = [],
@@ -36,19 +36,36 @@ const BookTable = ({
         </TableHead>
         <TableBody>
           {(rows || []).map((row, idx) => {
-            const lastUsed = row?.last_used_no;           // treat end_no as "last receipt used"
+            // ---- robust numbers ----
+            const start = Number(row?.start_no ?? row?.last_used_no + 1 ?? 1) || 1;
+            const endNo = Number(row?.end_no ?? start + CAP - 1) || (start + CAP - 1);
+            console.log(start,endNo)
+            // window cap: 25 receipts from start, but never beyond endNo
+            const defaultEnd = Math.min(start + CAP - 1, endNo);
+
+            // last used (if present and valid)
+            const usedRaw = row?.last_used_no;
+            const used = usedRaw === null || usedRaw === undefined ? null : Number(usedRaw);
+
+            // // pick what to display as the right side
+            // const endShown =
+            //   used !== null && Number.isFinite(used) && used >= start
+            //     ? Math.min(used, endNo) // clamp to endNo
+            //     : defaultEnd;           // e.g., 1–25 or 26–50, etc.
+
             const isSubmitted =
               (typeof row?.status === "string" && row.status.toLowerCase() === "submitted") ||
               !!row?.submitted_at;
 
             const assigned  = !!(row?.issued_to_user_id || row?.issued_to_name);
-            const fullyUsed = lastUsed >= CAP;                    // all receipts used
+            // fully used = last_used_no has reached the window cap
+            const fullyUsed = used !== null && used >= defaultEnd;
             const canAssign = !assigned && !isSubmitted && !fullyUsed && !!row?.book_no;
-            console.log(assigned,isSubmitted,fullyUsed,row?.book_no,lastUsed);
+
             return (
               <TableRow key={row?.id || row?.book_no || idx} hover>
                 <TableCell>{row?.book_no ?? "-"}</TableCell>
-                <TableCell>{`${row?.last_used_no || row?.start_no } - ${`25`}`}</TableCell>
+                <TableCell>{`${start} - ${endNo}`}</TableCell>
                 <TableCell>
                   {row?.issued_on ? new Date(row.issued_on).toLocaleDateString() : "-"}
                 </TableCell>
