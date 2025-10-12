@@ -262,7 +262,7 @@ export default function ReceiptBooks() {
     return <Chip size="small" label="Unassigned" variant="outlined" />;
   };
 
-  const TOTAL_PER_BOOK = 25;
+  const TOTAL_PER_BOOK = 50;
 
  const deriveInitialLastUsed = (row) => {
   const last = Number(row?.last_used_no || 0);

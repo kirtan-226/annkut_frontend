@@ -3,7 +3,7 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, T
 import axios from "axios";
 import { BACKEND_ENDPOINT } from "../../api/api";
 
-const CAP = 25;
+const CAP = 50;
 
 const EditBookModal = ({ open, onClose, sevakCode, book, onSaved }) => {
   const [form, setForm] = React.useState({ book_no: "", start_no: "", end_no: "" });
@@ -35,7 +35,7 @@ const EditBookModal = ({ open, onClose, sevakCode, book, onSaved }) => {
 
     start_no = clamp(start_no, 1, CAP);
     end_no   = clamp(end_no, 1, CAP);
-    if (start_no > end_no) return alert("Start number must be ≤ end number (1..25).");
+    if (start_no > end_no) return alert("Start number must be ≤ end number (1..50).");
 
     try {
       setSaving(true);
@@ -61,11 +61,11 @@ const EditBookModal = ({ open, onClose, sevakCode, book, onSaved }) => {
       <DialogTitle>Edit Book</DialogTitle>
       <DialogContent>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-          Editing book <strong>{book?.book_no}</strong> (Receipts 1–25)
+          Editing book <strong>{book?.book_no}</strong> (Receipts 1–50)
         </Typography>
         <TextField fullWidth margin="dense" label="Book Number" inputMode="numeric" value={form.book_no} onChange={update("book_no")} />
-        <TextField fullWidth margin="dense" label="Start Receipt Number (1–25)" inputMode="numeric" value={form.start_no} onChange={update("start_no")} />
-        <TextField fullWidth margin="dense" label="End Receipt Number (1–25)" inputMode="numeric" value={form.end_no} onChange={update("end_no")} />
+        <TextField fullWidth margin="dense" label="Start Receipt Number (1–50)" inputMode="numeric" value={form.start_no} onChange={update("start_no")} />
+        <TextField fullWidth margin="dense" label="End Receipt Number (1–50)" inputMode="numeric" value={form.end_no} onChange={update("end_no")} />
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} color="inherit">Cancel</Button>
