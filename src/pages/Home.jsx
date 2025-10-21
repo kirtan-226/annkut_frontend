@@ -112,9 +112,9 @@ const Home = () => {
       <div>
         {sevak_target > 0 && (
           <div>
-            <Button color="primary" outline onClick={handleAddSeva}>
+            {/* <Button color="primary" outline onClick={handleAddSeva}>
               Add Seva
-            </Button>
+            </Button> */}
             <ListingTable
               data={filledForms}
               handleDelete={handleDelete}

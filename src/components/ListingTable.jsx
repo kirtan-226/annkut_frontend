@@ -44,7 +44,7 @@ const ListingTable = ({ data = [], handleDelete, refreshData }) => {
             <th>Book no.</th>
             <th>Receipt no.</th>
             <th>Amount</th>
-            <th>Action</th>
+            {/* <th>Action</th> */}
           </tr>
         </thead>
 
@@ -60,7 +60,7 @@ const ListingTable = ({ data = [], handleDelete, refreshData }) => {
                 <td>{item?.receipt_no || "-"}</td>
                 <td>{item?.seva_amount != null ? currency.format(Number(item.seva_amount)) : "-"}</td>
                 <td>
-                  <IconButton
+                  {/* <IconButton
                     color="warning"
                     onClick={() => handleEdit(item)}
                     sx={{ mr: 1 }}
@@ -68,7 +68,7 @@ const ListingTable = ({ data = [], handleDelete, refreshData }) => {
                     title="Edit"
                   >
                     <i className="bi fs-6 bi-pencil" />
-                  </IconButton>
+                  </IconButton> */}
 
                   {/* {typeof handleDelete === "function" && (
                     <IconButton
